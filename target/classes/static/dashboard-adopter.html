@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adopter Dashboard | PetHaven</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PetHaven</div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span id="user-display"></span>
+                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <nav style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <button class="btn btn-primary" onclick="showSection('pets')">Browse Pets</button>
+            <button class="btn btn-primary" onclick="showSection('appointments')">My Appointments</button>
+            <button class="btn btn-primary" onclick="showSection('queries')">Q&A Support</button>
+        </nav>
+
+        <!-- Pets Section -->
+        <section id="pets-section" class="dash-section">
+            <h2>Available Pets</h2>
+            <div id="pet-grid" class="pet-grid"></div>
+        </section>
+
+        <!-- Appointments Section -->
+        <section id="appointments-section" class="dash-section" style="display: none;">
+            <h2>My Appointments</h2>
+            <div id="appointment-list" class="pet-grid"></div>
+        </section>
+
+        <!-- Queries Section -->
+        <section id="queries-section" class="dash-section" style="display: none;">
+            <h2>Questions & Answers</h2>
+            <div class="glass-panel" style="margin-bottom: 2rem;">
+                <h3>Ask a New Question</h3>
+                <form id="ask-query-form">
+                    <input type="text" id="query-text" placeholder="Type your question here..." style="margin: 1rem 0;">
+                    <button type="submit" class="btn btn-primary">Submit Question</button>
+                </form>
+            </div>
+            <div id="query-list"></div>
+        </section>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <h2 id="booking-title">Book Appointment</h2>
+            <form id="booking-form">
+                <input type="hidden" id="booking-pet-id">
+                <div class="form-group"><label>Date</label><input type="date" id="book-date" required></div>
+                <div class="form-group"><label>Time</label><input type="time" id="book-time" required></div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Confirm</button>
+                    <button type="button" class="btn" onclick="closeModal('booking-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard-adopter.js"></script>
+</body>
+</html>

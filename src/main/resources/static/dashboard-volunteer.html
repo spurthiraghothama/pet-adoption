@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Dashboard | PetHaven</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PetHaven <span style="font-size: 0.8rem; color: var(--accent);">VOLUNTEER</span></div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span id="user-display"></span>
+                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <section id="tasks-section">
+            <h2>Available Tasks</h2>
+            <div id="volunteer-task-grid" class="pet-grid"></div>
+        </section>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.userType !== 'VOLUNTEER') window.location.href = 'login.html';
+        document.getElementById('user-display').innerText = `Volunteer: ${user.name}`;
+
+        function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
+
+        async function loadTasks() {
+            const grid = document.getElementById('volunteer-task-grid');
+            const response = await fetch('/tasks');
+            const tasks = await response.json();
+            grid.innerHTML = tasks.map(t => `
+                <div class="glass-panel">
+                    <h3>${t.description}</h3>
+                    <p>${t.specifications || 'No detailed specs'}</p>
+                    <p>Status: <strong style="color:var(--accent)">${t.status}</strong></p>
+                    <div style="margin-top:1rem; display:flex; gap:0.5rem">
+                        <button class="btn btn-primary" onclick="updateTask(${t.taskId}, 'IN_PROGRESS')">Accept</button>
+                        <button class="btn" onclick="updateTask(${t.taskId}, 'COMPLETED')">Complete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateTask(id, status) {
+            await fetch(`/tasks/${id}/accept?status=${status}`, { method: 'PATCH' });
+            loadTasks();
+        }
+
+        loadTasks();
+    </script>
+</body>
+</html>

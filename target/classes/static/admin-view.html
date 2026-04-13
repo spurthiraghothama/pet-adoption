@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Visibility | PetHaven</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; border-radius: 12px; overflow: hidden; background: rgba(30, 41, 59, 0.4); }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        th { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+        .tab-btn { padding: 0.5rem 1rem; cursor: pointer; border: 1px solid var(--glass-border); background: none; color: white; border-radius: 8px; margin-right: 0.5rem; transition: 0.3s; }
+        .tab-btn.active { background: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PetHaven <span style="font-size: 0.8rem; color: var(--accent);">DATABASE</span></div>
+            <a href="dashboard-staff.html" class="btn">Back to Dash</a>
+        </header>
+
+        <section class="glass-panel">
+            <div style="margin-bottom: 2rem;">
+                <button class="tab-btn active" onclick="loadTable('users')">Users Table</button>
+                <button class="tab-btn" onclick="loadTable('pets')">Pets Table</button>
+                <button class="tab-btn" onclick="loadTable('appointments')">Appointments Table</button>
+                <button class="tab-btn" onclick="loadTable('queries')">Queries Table</button>
+            </div>
+
+            <div id="table-container">
+                <p>Select a table to view raw records...</p>
+            </div>
+        </section>
+
+        <section class="glass-panel" style="margin-top: 2rem;">
+            <h3>Quick Links</h3>
+            <p>Direct API Access:</p>
+            <ul style="margin-top: 0.5rem; list-style: none;">
+                <li><a href="/admin/data/all" target="_blank" style="color:var(--primary)">• /admin/data/all (Combined JSON)</a></li>
+                <li><a href="/pets/all" target="_blank" style="color:var(--primary)">• /pets/all</a></li>
+                <li><a href="/users/all" target="_blank" style="color:var(--primary)">• /users/all</a></li>
+                <li><a href="/h2-console" target="_blank" style="color:var(--accent)">• H2 Console (jdbc:h2:mem:petdb)</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <script>
+        async function loadTable(type) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const container = document.getElementById('table-container');
+            container.innerHTML = '<p>Loading database records...</p>';
+
+            const response = await fetch('/admin/data/all');
+            const data = await response.json();
+            const records = data[type];
+
+            if (!records || records.length === 0) {
+                container.innerHTML = '<p>No records found in this table.</p>';
+                return;
+            }
+
+            const headers = Object.keys(records[0]);
+            let html = '<table><thead><tr>';
+            headers.forEach(h => html += `<th>${h}</th>`);
+            html += '</tr></thead><tbody>';
+
+            records.forEach(r => {
+                html += '<tr>';
+                headers.forEach(h => {
+                    let val = r[h];
+                    if (typeof val === 'object' && val !== null) val = val.name || val.userId || JSON.stringify(val);
+                    html += `<td>${val}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Load users by default
+        loadTable('users');
+    </script>
+</body>
+</html>

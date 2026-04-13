@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetHaven | Find Your Forever Friend</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PetHaven</div>
+            <nav id="user-nav">
+                <a href="login.html" class="btn" style="background: rgba(255,255,255,0.1); margin-right: 1rem;">Sign In</a>
+                <button class="btn btn-primary" onclick="openModal('register-modal')">Join Now</button>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <h1>Every Pet Deserves<br>A Loving Home.</h1>
+            <p>Start your adoption journey with PetHaven. Register now to meet our amazing companions.</p>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" onclick="openModal('register-modal')">Register as Adopter</button>
+                <a href="login.html" class="btn" style="background: rgba(255,255,255,0.1);">Browse Dashboard</a>
+            </div>
+        </section>
+
+        <section class="glass-panel" style="text-align: center;">
+            <h2>How it works</h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+                <div><div style="font-size: 2rem;">🐾</div><h3>Pick a Friend</h3><p style="color:var(--text-muted)">Browse hundreds of available pets in your area.</p></div>
+                <div><div style="font-size: 2rem;">📅</div><h3>Book a Visit</h3><p style="color:var(--text-muted)">Schedule a time to meet your future companion.</p></div>
+                <div><div style="font-size: 2rem;">🏠</div><h3>Take Home</h3><p style="color:var(--text-muted)">Finalize the adoption and start your new life together.</p></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <h2>Create Account</h2>
+            <form id="register-form">
+                <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="reg-email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="reg-password" required></div>
+                <div class="form-group"><label>Phone</label><input type="tel" id="reg-phone"></div>
+                <div class="form-group"><label>Role</label>
+                    <select id="reg-role" style="width:100%; padding:0.75rem; border-radius:12px; background:#0f172a; color:white;">
+                        <option value="ADOPTER">Adopter</option>
+                        <option value="STAFF">Shelter Staff</option>
+                        <option value="VOLUNTEER">Volunteer</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Register</button>
+                    <button type="button" class="btn" onclick="closeModal('register-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                phone: document.getElementById('reg-phone').value,
+                userType: document.getElementById('reg-role').value
+            };
+            const response = await fetch('/users/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                alert('Success! Please sign in.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

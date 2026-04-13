@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard | PetHaven</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">PetHaven <span style="font-size: 0.8rem; color: var(--accent);">STAFF</span></div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span id="user-display"></span>
+                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <nav style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <button class="btn btn-primary" onclick="showSection('manage-pets')">Manage Pets</button>
+            <button class="btn btn-primary" onclick="showSection('manage-apps')">Manage Appointments</button>
+            <button class="btn btn-primary" onclick="showSection('respond-queries')">Answer Queries</button>
+            <a href="admin-view.html" class="btn btn-primary" style="background: var(--accent);">DB Visibility</a>
+        </nav>
+
+        <!-- Manage Pets -->
+        <section id="manage-pets-section" class="dash-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2>Current Pets</h2>
+                <button class="btn btn-primary" onclick="openModal('pet-modal')">+ Add New Pet</button>
+            </div>
+            <div id="staff-pet-grid" class="pet-grid"></div>
+        </section>
+
+        <!-- Manage Appointments -->
+        <section id="manage-apps-section" class="dash-section" style="display: none;">
+            <h2>All Appointments</h2>
+            <div id="staff-app-list" class="pet-grid"></div>
+        </section>
+
+        <!-- Respond Queries -->
+        <section id="respond-queries-section" class="dash-section" style="display: none;">
+            <h2>Pending Queries</h2>
+            <div id="staff-query-list"></div>
+        </section>
+    </div>
+
+    <!-- Add Pet Modal -->
+    <div id="pet-modal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <h2>Add New Pet</h2>
+            <form id="add-pet-form">
+                <div class="form-group"><label>Name</label><input type="text" id="pet-name" required></div>
+                <div class="form-group"><label>Species</label><input type="text" id="pet-species" placeholder="Dog/Cat" required></div>
+                <div class="form-group"><label>Age</label><input type="number" id="pet-age" required></div>
+                <div class="form-group"><label>Vaccinated?</label><select id="pet-vacc" style="width:100%; border-radius:12px; padding:0.75rem; background:#0f172a; color:white;"><option value="true">Yes</option><option value="false">No</option></select></div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Pet</button>
+                    <button type="button" class="btn" onclick="closeModal('pet-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Response Modal -->
+    <div id="response-modal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <h2>Respond to Query</h2>
+            <form id="response-form">
+                <input type="hidden" id="resp-query-id">
+                <div class="form-group"><label>Your Answer</label><input type="text" id="resp-text" required></div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Send Response</button>
+                    <button type="button" class="btn" onclick="closeModal('response-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard-staff.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.userType !== 'STAFF') window.location.href = 'login.html';
+        document.getElementById('user-display').innerText = `Staff: ${user.name}`;
+
+        function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
+        function showSection(id) {
+            document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
+            document.getElementById(`${id}-section`).style.display = 'block';
+            if (id === 'manage-pets') loadStaffPets();
+            if (id === 'manage-apps') loadStaffApps();
+            if (id === 'respond-queries') loadStaffQueries();
+        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>
