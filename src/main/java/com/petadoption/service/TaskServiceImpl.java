@@ -26,7 +26,11 @@ public class TaskServiceImpl implements TaskService {
     public Task createTask(Map<String, Object> payload) {
         Task task = new Task();
         task.setDescription((String) payload.get("description"));
-        task.setSpecifications((String) payload.get("specifications"));
+        task.setSpecifications(
+                payload.get("specifications") != null
+                    ? payload.get("specifications").toString()
+                    : ""
+        );
         task.setStatus(TaskStatus.DRAFTED);
 
         if (payload.containsKey("volunteerId") && payload.get("volunteerId") != null) {
@@ -57,7 +61,8 @@ public class TaskServiceImpl implements TaskService {
                         task.getDescription(),
                         task.getSpecifications(),
                         task.getStatus(),
-                        task.getVolunteer() != null ? task.getVolunteer().getUserId() : null
+                        task.getVolunteer() != null ? task.getVolunteer().getUserId() : null,
+                        task.getVolunteer() != null ? task.getVolunteer().getName() : null
                 ))
                 .toList();
     }
@@ -71,7 +76,8 @@ public class TaskServiceImpl implements TaskService {
                         task.getDescription(),
                         task.getSpecifications(),
                         task.getStatus(),
-                        volunteerId
+                        volunteerId,
+                        task.getVolunteer() != null ? task.getVolunteer().getName() : null
                 ))
                 .toList();
     }
@@ -170,7 +176,8 @@ public class TaskServiceImpl implements TaskService {
                         task.getDescription(),
                         task.getSpecifications(),
                         task.getStatus(),
-                        task.getVolunteer() != null ? task.getVolunteer().getUserId() : null
+                        task.getVolunteer() != null ? task.getVolunteer().getUserId() : null,
+                        task.getVolunteer() != null ? task.getVolunteer().getName() : null
                 ))
                 .toList();
     }
