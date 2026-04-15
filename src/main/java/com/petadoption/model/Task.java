@@ -1,7 +1,10 @@
 package com.petadoption.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 public class Task {
     @Id
@@ -15,6 +18,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "volunteer_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Volunteer volunteer;
 
     public Task() {}

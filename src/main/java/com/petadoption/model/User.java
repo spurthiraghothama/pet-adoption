@@ -1,7 +1,10 @@
 package com.petadoption.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)

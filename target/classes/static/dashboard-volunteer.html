@@ -18,12 +18,20 @@
         </header>
 
         <nav class="dash-nav">
-            <button class="btn btn-primary" onclick="showSection('tasks')">My Queue</button>
+            <button class="btn btn-primary" onclick="showSection('open-tasks')">Open Tasks</button>
+            <button class="btn btn-outline" onclick="showSection('tasks')">My Queue</button>
             <button class="btn btn-outline" onclick="showSection('reg-pet')">Register Rescue</button>
         </nav>
 
-        <section id="tasks-section" class="dash-section">
-            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Available Opportunities</h2>
+        <!-- 🟢 OPEN TASKS -->
+        <section id="open-tasks-section" class="dash-section">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Open Tasks</h2>
+            <div id="open-task-grid" class="pet-grid"></div>
+        </section>
+
+        <!-- 🔵 MY QUEUE -->
+        <section id="tasks-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">My Queue</h2>
             <div id="volunteer-task-grid" class="pet-grid"></div>
         </section>
 
@@ -59,29 +67,87 @@
         window.showSection = function(id) {
             document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
             document.getElementById(`${id}-section`).style.display = 'block';
-            if (id === 'tasks') loadTasks();
+
+            if (id === 'open-tasks') loadOpenTasks();
+            if (id === 'tasks') loadMyTasks();
         };
 
-        async function loadTasks() {
-            const grid = document.getElementById('volunteer-task-grid');
-            const res = await fetch('/tasks');
+        // 🟢 OPEN TASKS
+        async function loadOpenTasks() {
+            const grid = document.getElementById('open-task-grid');
+            const res = await fetch('/tasks/open');
             const tasks = await res.json();
+
             grid.innerHTML = tasks.length ? tasks.map(t => `
                 <div class="glass-panel">
-                    <span class="status-tag" style="background:${t.status==='PENDING'?'var(--primary)':'#55efc4'}; color:black">${t.status}</span>
+                    <span class="status-tag" style="background:var(--primary); color:black">${t.status}</span>
                     <h3 style="margin-top:1rem">${t.description}</h3>
                     <p style="color:var(--text-muted); margin-bottom:1.5rem">${t.specifications || 'Standard duty'}</p>
-                    <div style="display:flex; gap:0.5rem">
-                        <button class="btn btn-primary" style="font-size:0.8rem" onclick="updateTask(${t.taskId}, 'IN_PROGRESS')">Handle</button>
-                        <button class="btn btn-outline" style="font-size:0.8rem; border-color:#55efc4" onclick="updateTask(${t.taskId}, 'COMPLETED')">Complete</button>
-                    </div>
+
+                    <button class="btn btn-primary" style="font-size:0.8rem"
+                        onclick="chooseTask(${t.taskId})">
+                        Choose
+                    </button>
                 </div>
-            `).join('') : '<p>No tasks assigned.</p>';
+            `).join('') : '<p>No open tasks.</p>';
         }
 
-        async function updateTask(id, status) {
-            await fetch(`/tasks/${id}/accept?status=${status}`, { method: 'PATCH' });
-            loadTasks();
+        // 🔵 MY TASKS
+        async function loadMyTasks() {
+            const grid = document.getElementById('volunteer-task-grid');
+            const res = await fetch(`/tasks/volunteer/${u.userId}`);
+            const tasks = await res.json();
+
+            grid.innerHTML = tasks.length ? tasks.map(t => `
+                <div class="glass-panel">
+                    <span class="status-tag" style="background:#55efc4; color:black">${t.status}</span>
+                    <h3 style="margin-top:1rem">${t.description}</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem">${t.specifications || 'Standard duty'}</p>
+
+                    <div style="display:flex; gap:0.5rem">
+
+                        ${t.status === 'ASSIGNED' ? `
+                            <button class="btn btn-primary" style="font-size:0.8rem"
+                                onclick="startTask(${t.taskId})">
+                                Start
+                            </button>
+                        ` : ''}
+
+                        ${t.status === 'IN_PROGRESS' ? `
+                            <button class="btn btn-outline" style="font-size:0.8rem; border-color:#55efc4"
+                                onclick="completeTask(${t.taskId})">
+                                Complete
+                            </button>
+                        ` : ''}
+
+                        ${t.status === 'MONITORED' ? `
+                            <span style="color:orange;">Waiting for approval</span>
+                        ` : ''}
+
+                    </div>
+                </div>
+            `).join('') : '<p>No tasks in your queue.</p>';
+        }
+
+        async function chooseTask(taskId) {
+            await fetch(`/tasks/${taskId}/choose/${u.userId}`, {
+                method: 'PATCH'
+            });
+            loadOpenTasks();
+        }
+
+        async function completeTask(taskId) {
+            await fetch(`/tasks/${taskId}/complete`, {
+                method: 'PATCH'
+            });
+            loadMyTasks();
+        }
+
+        async function startTask(taskId) {
+            await fetch(`/tasks/${taskId}/start`, {
+                method: 'PATCH'
+            });
+            loadMyTasks();
         }
 
         document.getElementById('rescue-form').addEventListener('submit', async (e) => {
@@ -103,7 +169,8 @@
             showSection('tasks');
         });
 
-        loadTasks();
+        // default load
+        showSection('open-tasks');
     </script>
 </body>
 </html>

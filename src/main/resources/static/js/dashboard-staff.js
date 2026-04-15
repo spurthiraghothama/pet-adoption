@@ -145,8 +145,29 @@ async function loadStaffTasks() {
             <h3 style="margin-top:0.5rem">${t.description}</h3>
             <p style="color:var(--text-muted)">Assigned to: <strong>${t.volunteer ? t.volunteer.name : 'Unassigned'}</strong></p>
             <p style="color:var(--text-muted); font-size:0.85rem">Specs: ${t.specifications || 'Standard procedure'}</p>
+
+            <div style="margin-top:1rem; display:flex; gap:0.5rem">
+                ${t.status === 'DRAFTED' ? `
+                    <button class="btn btn-primary" onclick="publishTask(${t.taskId})">Publish</button>
+                ` : ''}
+
+                ${t.status === 'MONITORED' ? `
+                    <button class="btn btn-primary" onclick="reviewTask(${t.taskId}, true)">Approve</button>
+                    <button class="btn btn-outline" onclick="reviewTask(${t.taskId}, false)">Reject</button>
+                ` : ''}
+            </div>
         </div>
     `).join('') : '<p>No tasks created yet.</p>';
+}
+
+async function publishTask(taskId) {
+    await fetch(`/tasks/${taskId}/publish`, { method: 'PATCH' });
+    loadStaffTasks();
+}
+
+async function reviewTask(taskId, approved) {
+    await fetch(`/tasks/${taskId}/review?approved=${approved}`, { method: 'PATCH' });
+    loadStaffTasks();
 }
 
 async function loadVolunteers() {
@@ -162,14 +183,13 @@ document.getElementById('add-task-form').addEventListener('submit', async (e) =>
     const payload = {
         description: document.getElementById('task-desc').value,
         specifications: document.getElementById('task-specs').value,
-        volunteerId: document.getElementById('task-vol').value || null,
-        status: 'PENDING'
+        volunteerId: document.getElementById('task-vol').value || null
     };
     await fetch('/tasks/create', {
         method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
     document.getElementById('task-modal').style.display = 'none';
     loadStaffTasks();
 });
