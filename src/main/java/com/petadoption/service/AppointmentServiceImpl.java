@@ -54,4 +54,12 @@ public class AppointmentServiceImpl implements AppointmentService {
     public java.util.List<Appointment> getAllAppointments() {
         return appointmentRepository.findAll();
     }
+
+    @Override
+    public Appointment updateStatus(Long id, String status) {
+        Appointment app = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+        app.setStatus(status);
+        return appointmentRepository.save(app);
+    }
 }

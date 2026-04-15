@@ -7,4 +7,5 @@ public interface AppointmentService {
     Appointment bookAppointment(AppointmentDTO appointmentDTO);
     void cancelAppointment(Long appointmentId);
     java.util.List<Appointment> getAllAppointments();
+    Appointment updateStatus(Long id, String status);
 }

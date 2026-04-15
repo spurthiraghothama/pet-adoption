@@ -25,4 +25,11 @@ public class UserController {
     public ResponseEntity<java.util.List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @GetMapping("/volunteers")
+    public ResponseEntity<java.util.List<User>> getVolunteers() {
+        return ResponseEntity.ok(userService.getAllUsers().stream()
+            .filter(u -> u.getUserType().equalsIgnoreCase("VOLUNTEER"))
+            .toList());
+    }
 }

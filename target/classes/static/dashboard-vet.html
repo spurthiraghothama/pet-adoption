@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vet Dashboard | Furry Family</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #fafafa;">
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">🐾 Furry Family <span style="font-size: 0.7rem; background: var(--primary); padding: 4px 10px; border-radius: 20px; color: black; margin-left:10px;">VETERINARIAN</span></a>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <span id="user-display" style="font-weight: 700;"></span>
+                <button class="btn btn-outline" style="padding: 0.5rem 1.2rem;" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+        <section id="vet-checks-section">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Incoming Medical Logs</h2>
+            <div id="vet-app-list" class="pet-grid"></div>
+        </section>
+    </div>
+
+    <!-- Medical Modal -->
+    <div id="health-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Medical Assessment</h2>
+            <form id="health-form">
+                <input type="hidden" id="health-pet-id">
+                <input type="hidden" id="health-app-id">
+                <div class="form-group">
+                    <label>Findings & Observations</label>
+                    <textarea id="health-status" required rows="4" placeholder="Update status..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Vaccination Administered?</label>
+                    <select id="health-vacc">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Finalize Record</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('health-modal')">Discard</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const u = JSON.parse(localStorage.getItem('user'));
+        if (!u || u.userType !== 'VETERINARIAN') window.location.href = 'login.html';
+        document.getElementById('user-display').innerText = u.name;
+
+        async function loadVetChecks() {
+            const res = await fetch('/appointments/all');
+            const apps = await res.json();
+            const checks = apps.filter(a => a.appointmentType === 'VET_CHECK' && a.status !== 'COMPLETED');
+            const list = document.getElementById('vet-app-list');
+            list.innerHTML = checks.length ? checks.map(a => `
+                <div class="pet-card">
+                    <img src="${a.pet ? a.pet.imageUrl || 'img/pet.png' : 'img/pet.png'}" alt="Pet">
+                    <div class="pet-info">
+                        <span style="color:var(--primary); font-size:0.7rem; font-weight:800; text-transform:uppercase;">${a.pet?a.pet.species:'Inquiry'}</span>
+                        <h3 style="margin:0.5rem 0">${a.pet ? a.pet.name : 'Unknown Resident'}</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem">Scheduled: ${a.date}</p>
+                        <button class="btn btn-primary" style="width:100%; margin-top:1.5rem" onclick="openMedicalModal(${a.pet.petId}, ${a.appointmentId}, '${a.pet.healthStatus || ''}', ${a.pet.vaccinationStatus})">Process Results</button>
+                    </div>
+                </div>
+            `).join('') : '<p>All medical checks completed.</p>';
+        }
+
+        function openMedicalModal(petId, appId, health, vacc) {
+            document.getElementById('health-pet-id').value = petId;
+            document.getElementById('health-app-id').value = appId;
+            document.getElementById('health-status').value = health;
+            document.getElementById('health-vacc').value = vacc ? 'true' : 'false';
+            document.getElementById('health-modal').style.display = 'flex';
+        }
+
+        document.getElementById('health-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pid = document.getElementById('health-pet-id').value;
+            const aid = document.getElementById('health-app-id').value;
+            await fetch(`/pets/${pid}/vaccination?status=${document.getElementById('health-vacc').value === 'true'}`, { method: 'PATCH' });
+            await fetch(`/pets/add`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ petId: pid, healthStatus: document.getElementById('health-status').value })
+            });
+            await fetch(`/appointments/${aid}`, { method: 'DELETE' }); 
+            alert('Medical assessment logged.');
+            closeModal('health-modal');
+            loadVetChecks();
+        });
+
+        function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        loadVetChecks();
+    </script>
+</body>
+</html>

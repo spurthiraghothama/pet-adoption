@@ -3,76 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard | PetHaven</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Staff Dashboard | Furry Family</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background: #fafafa;">
     <div class="container">
         <header>
-            <div class="logo">PetHaven <span style="font-size: 0.8rem; color: var(--accent);">STAFF</span></div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <span id="user-display"></span>
-                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="logout()">Logout</button>
+            <a href="index.html" class="logo">🐾 Furry Family <span style="font-size: 0.7rem; background: var(--text-dark); padding: 4px 10px; border-radius: 20px; color: white; margin-left:10px;">SHELLTER STAFF</span></a>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <span id="user-display" style="font-weight: 700;"></span>
+                <button class="btn btn-outline" style="padding: 0.5rem 1.2rem;" onclick="logout()">Logout</button>
             </div>
         </header>
 
-        <nav style="margin-bottom: 2rem; display: flex; gap: 1rem;">
-            <button class="btn btn-primary" onclick="showSection('manage-pets')">Manage Pets</button>
-            <button class="btn btn-primary" onclick="showSection('manage-apps')">Manage Appointments</button>
-            <button class="btn btn-primary" onclick="showSection('respond-queries')">Answer Queries</button>
-            <a href="admin-view.html" class="btn btn-primary" style="background: var(--accent);">DB Visibility</a>
+        <nav class="dash-nav">
+            <button class="btn btn-primary" onclick="showSection('manage-pets')">Manage Listings</button>
+            <button class="btn btn-outline" onclick="showSection('manage-apps')">Visiting Log</button>
+            <button class="btn btn-outline" onclick="showSection('queries')">User Inquiries</button>
+            <button class="btn btn-outline" onclick="showSection('tasks')">Task Oversight</button>
         </nav>
 
-        <!-- Manage Pets -->
         <section id="manage-pets-section" class="dash-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2>Current Pets</h2>
-                <button class="btn btn-primary" onclick="openModal('pet-modal')">+ Add New Pet</button>
+                <h2 style="font-size: 2rem;">Current Residents</h2>
+                <button class="btn btn-primary" onclick="openModal('pet-modal')">+ Add Record</button>
             </div>
             <div id="staff-pet-grid" class="pet-grid"></div>
         </section>
 
-        <!-- Manage Appointments -->
         <section id="manage-apps-section" class="dash-section" style="display: none;">
-            <h2>All Appointments</h2>
-            <div id="staff-app-list" class="pet-grid"></div>
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Appointments Management</h2>
+            <div id="staff-app-list"></div>
         </section>
 
-        <!-- Respond Queries -->
-        <section id="respond-queries-section" class="dash-section" style="display: none;">
-            <h2>Pending Queries</h2>
+        <section id="queries-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Help Requests</h2>
             <div id="staff-query-list"></div>
+        </section>
+
+        <section id="tasks-section" class="dash-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h2 style="font-size: 2rem;">Volunteer Assignments</h2>
+                <button class="btn btn-primary" onclick="openModal('task-modal')">+ Assign Task</button>
+            </div>
+            <div id="staff-task-list"></div>
         </section>
     </div>
 
-    <!-- Add Pet Modal -->
+    <!-- Modals -->
     <div id="pet-modal" class="modal-overlay">
-        <div class="modal glass-panel">
-            <h2>Add New Pet</h2>
+        <div class="modal">
+            <h2>Pet Registration</h2>
             <form id="add-pet-form">
                 <div class="form-group"><label>Name</label><input type="text" id="pet-name" required></div>
-                <div class="form-group"><label>Species</label><input type="text" id="pet-species" placeholder="Dog/Cat" required></div>
+                <div class="form-group"><label>Species</label><input type="text" id="pet-species" required placeholder="Dog / Cat"></div>
                 <div class="form-group"><label>Age</label><input type="number" id="pet-age" required></div>
-                <div class="form-group"><label>Vaccinated?</label><select id="pet-vacc" style="width:100%; border-radius:12px; padding:0.75rem; background:#0f172a; color:white;"><option value="true">Yes</option><option value="false">No</option></select></div>
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Pet</button>
-                    <button type="button" class="btn" onclick="closeModal('pet-modal')">Cancel</button>
+                <div class="form-group"><label>Health Status</label><input type="text" id="pet-health" value="Healthy"></div>
+                <div class="form-group"><label>Image URL</label><input type="text" id="pet-img" placeholder="img/pet.png"></div>
+                <div class="form-group"><label>Vaccinated?</label><select id="pet-vacc"><option value="true">Yes</option><option value="false">No</option></select></div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Entry</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('pet-modal')">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Response Modal -->
+    <div id="vet-check-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Schedule Vet Evaluation</h2>
+            <form id="vet-check-form">
+                <input type="hidden" id="vet-pet-id">
+                <div class="form-group"><label>Requested Date</label><input type="date" id="vet-date" required></div>
+                <div class="form-group"><label>Requested Time</label><input type="time" id="vet-time" required></div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Create Checkup</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('vet-check-modal')">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="task-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>New Volunteer Task</h2>
+            <form id="add-task-form">
+                <div class="form-group"><label>Task Title</label><input type="text" id="task-desc" required></div>
+                <div class="form-group">
+                    <label>Assign To Volunteer</label>
+                    <select id="task-vol" style="background:#fff;">
+                        <option value="">-- Unassigned --</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Details</label><textarea id="task-specs" rows="3"></textarea></div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Assign</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('task-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="response-modal" class="modal-overlay">
-        <div class="modal glass-panel">
-            <h2>Respond to Query</h2>
+        <div class="modal">
+            <h2>Reply to Inquirer</h2>
             <form id="response-form">
                 <input type="hidden" id="resp-query-id">
-                <div class="form-group"><label>Your Answer</label><input type="text" id="resp-text" required></div>
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">Send Response</button>
-                    <button type="button" class="btn" onclick="closeModal('response-modal')">Cancel</button>
+                <div class="form-group"><label>Message</label><textarea id="resp-text" required rows="5"></textarea></div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Resolve & Send</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('response-modal')">Cancel</button>
                 </div>
             </form>
         </div>
@@ -80,18 +121,10 @@
 
     <script src="js/dashboard-staff.js"></script>
     <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.userType !== 'STAFF') window.location.href = 'login.html';
-        document.getElementById('user-display').innerText = `Staff: ${user.name}`;
-
+        const u = JSON.parse(localStorage.getItem('user'));
+        if (!u || !u.userType.includes('STAFF')) window.location.href = 'login.html';
+        document.getElementById('user-display').innerText = u.name;
         function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
-        function showSection(id) {
-            document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
-            document.getElementById(`${id}-section`).style.display = 'block';
-            if (id === 'manage-pets') loadStaffPets();
-            if (id === 'manage-apps') loadStaffApps();
-            if (id === 'respond-queries') loadStaffQueries();
-        }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     </script>

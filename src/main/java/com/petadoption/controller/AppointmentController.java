@@ -31,4 +31,9 @@ public class AppointmentController {
         appointmentService.cancelAppointment(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Appointment> updateStatus(@PathVariable Long id, @RequestParam String status) {
+        return ResponseEntity.ok(appointmentService.updateStatus(id, status));
+    }
 }

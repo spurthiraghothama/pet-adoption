@@ -13,6 +13,7 @@ public class Appointment {
     private LocalDate date;
     private LocalTime time;
     private String status;
+    private String appointmentType; // e.g., "VISIT", "VET_CHECK"
 
     @ManyToOne
     @JoinColumn(name = "pet_id")
@@ -24,11 +25,12 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(Long appointmentId, LocalDate date, LocalTime time, String status, Pet pet, User user) {
+    public Appointment(Long appointmentId, LocalDate date, LocalTime time, String status, String appointmentType, Pet pet, User user) {
         this.appointmentId = appointmentId;
         this.date = date;
         this.time = time;
         this.status = status;
+        this.appointmentType = appointmentType;
         this.pet = pet;
         this.user = user;
     }
@@ -42,6 +44,7 @@ public class Appointment {
         private LocalDate date;
         private LocalTime time;
         private String status;
+        private String appointmentType;
         private Pet pet;
         private User user;
 
@@ -49,11 +52,12 @@ public class Appointment {
         public AppointmentBuilder date(LocalDate date) { this.date = date; return this; }
         public AppointmentBuilder time(LocalTime time) { this.time = time; return this; }
         public AppointmentBuilder status(String status) { this.status = status; return this; }
+        public AppointmentBuilder appointmentType(String appointmentType) { this.appointmentType = appointmentType; return this; }
         public AppointmentBuilder pet(Pet pet) { this.pet = pet; return this; }
         public AppointmentBuilder user(User user) { this.user = user; return this; }
 
         public Appointment build() {
-            return new Appointment(appointmentId, date, time, status, pet, user);
+            return new Appointment(appointmentId, date, time, status, appointmentType, pet, user);
         }
     }
 
@@ -66,6 +70,8 @@ public class Appointment {
     public void setTime(LocalTime time) { this.time = time; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public String getAppointmentType() { return appointmentType; }
+    public void setAppointmentType(String appointmentType) { this.appointmentType = appointmentType; }
     public Pet getPet() { return pet; }
     public void setPet(Pet pet) { this.pet = pet; }
     public User getUser() { return user; }

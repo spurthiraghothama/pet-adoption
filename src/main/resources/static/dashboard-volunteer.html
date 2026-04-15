@@ -3,54 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volunteer Dashboard | PetHaven</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Volunteer Dashboard | Furry Family</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body style="background: #fafafa;">
     <div class="container">
         <header>
-            <div class="logo">PetHaven <span style="font-size: 0.8rem; color: var(--accent);">VOLUNTEER</span></div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <span id="user-display"></span>
-                <button class="btn" style="background: rgba(255,255,255,0.1);" onclick="logout()">Logout</button>
+            <a href="index.html" class="logo">🐾 Furry Family <span style="font-size: 0.7rem; background: var(--primary); padding: 4px 10px; border-radius: 20px; color: black; margin-left:10px;">VOLUNTEER</span></a>
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <span id="user-display" style="font-weight: 700;"></span>
+                <button class="btn btn-outline" style="padding: 0.5rem 1.2rem;" onclick="logout()">Logout</button>
             </div>
         </header>
 
-        <section id="tasks-section">
-            <h2>Available Tasks</h2>
+        <nav class="dash-nav">
+            <button class="btn btn-primary" onclick="showSection('tasks')">My Queue</button>
+            <button class="btn btn-outline" onclick="showSection('reg-pet')">Register Rescue</button>
+        </nav>
+
+        <section id="tasks-section" class="dash-section">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Available Opportunities</h2>
             <div id="volunteer-task-grid" class="pet-grid"></div>
+        </section>
+
+        <section id="reg-pet-section" class="dash-section" style="display: none;">
+            <div style="max-width: 700px; margin: 0 auto;" class="glass-panel">
+                <h2 style="margin-bottom: 2rem;">Submit Rescue Entry</h2>
+                <form id="rescue-form">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                        <div class="form-group"><label>Name</label><input type="text" id="p-name" required placeholder="Unknown/Given Name"></div>
+                        <div class="form-group"><label>Species/Breed</label><input type="text" id="p-species" required placeholder="e.g. Golden Retriever"></div>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                        <div class="form-group"><label>Age</label><input type="number" id="p-age" required></div>
+                        <div class="form-group"><label>Current Status</label><input type="text" id="p-health" placeholder="Injured / Healthy / Stressed"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Photograph URL</label>
+                        <input type="text" id="p-img" placeholder="Paste link here...">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 1rem;">Complete Registry ➜</button>
+                </form>
+            </div>
         </section>
     </div>
 
     <script>
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.userType !== 'VOLUNTEER') window.location.href = 'login.html';
-        document.getElementById('user-display').innerText = `Volunteer: ${user.name}`;
+        const u = JSON.parse(localStorage.getItem('user'));
+        if (!u || u.userType !== 'VOLUNTEER') window.location.href = 'login.html';
+        document.getElementById('user-display').innerText = u.name;
 
         function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
+        
+        window.showSection = function(id) {
+            document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
+            document.getElementById(`${id}-section`).style.display = 'block';
+            if (id === 'tasks') loadTasks();
+        };
 
         async function loadTasks() {
             const grid = document.getElementById('volunteer-task-grid');
-            const response = await fetch('/tasks');
-            const tasks = await response.json();
-            grid.innerHTML = tasks.map(t => `
+            const res = await fetch('/tasks');
+            const tasks = await res.json();
+            grid.innerHTML = tasks.length ? tasks.map(t => `
                 <div class="glass-panel">
-                    <h3>${t.description}</h3>
-                    <p>${t.specifications || 'No detailed specs'}</p>
-                    <p>Status: <strong style="color:var(--accent)">${t.status}</strong></p>
-                    <div style="margin-top:1rem; display:flex; gap:0.5rem">
-                        <button class="btn btn-primary" onclick="updateTask(${t.taskId}, 'IN_PROGRESS')">Accept</button>
-                        <button class="btn" onclick="updateTask(${t.taskId}, 'COMPLETED')">Complete</button>
+                    <span class="status-tag" style="background:${t.status==='PENDING'?'var(--primary)':'#55efc4'}; color:black">${t.status}</span>
+                    <h3 style="margin-top:1rem">${t.description}</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem">${t.specifications || 'Standard duty'}</p>
+                    <div style="display:flex; gap:0.5rem">
+                        <button class="btn btn-primary" style="font-size:0.8rem" onclick="updateTask(${t.taskId}, 'IN_PROGRESS')">Handle</button>
+                        <button class="btn btn-outline" style="font-size:0.8rem; border-color:#55efc4" onclick="updateTask(${t.taskId}, 'COMPLETED')">Complete</button>
                     </div>
                 </div>
-            `).join('');
+            `).join('') : '<p>No tasks assigned.</p>';
         }
 
         async function updateTask(id, status) {
             await fetch(`/tasks/${id}/accept?status=${status}`, { method: 'PATCH' });
             loadTasks();
         }
+
+        document.getElementById('rescue-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/pets/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: document.getElementById('p-name').value,
+                    species: document.getElementById('p-species').value,
+                    age: document.getElementById('p-age').value,
+                    healthStatus: document.getElementById('p-health').value,
+                    imageUrl: document.getElementById('p-img').value || 'img/pet.png',
+                    availabilityStatus: 'UNDER_REVIEW'
+                })
+            });
+            alert('Rescue entry successful!');
+            document.getElementById('rescue-form').reset();
+            showSection('tasks');
+        });
 
         loadTasks();
     </script>

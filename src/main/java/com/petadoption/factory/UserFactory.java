@@ -21,6 +21,11 @@ public class UserFactory {
                 ShelterStaff staff = new ShelterStaff();
                 staff.setUserType("SHELTER_STAFF");
                 return staff;
+            case "VETERINARIAN":
+            case "VET":
+                Veterinarian vet = new Veterinarian();
+                vet.setUserType("VETERINARIAN");
+                return vet;
             case "BREEDER":
                 Breeder breeder = new Breeder();
                 breeder.setUserType("BREEDER");

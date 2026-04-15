@@ -12,16 +12,20 @@ public class Pet {
     private int age;
     private boolean vaccinationStatus;
     private String availabilityStatus;
+    private String healthStatus;
+    private String imageUrl;
 
     public Pet() {}
 
-    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, String availabilityStatus) {
+    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, String availabilityStatus, String healthStatus, String imageUrl) {
         this.petId = petId;
         this.name = name;
         this.species = species;
         this.age = age;
         this.vaccinationStatus = vaccinationStatus;
         this.availabilityStatus = availabilityStatus;
+        this.healthStatus = healthStatus;
+        this.imageUrl = imageUrl;
     }
 
     public static PetBuilder builder() {
@@ -35,6 +39,8 @@ public class Pet {
         private int age;
         private boolean vaccinationStatus;
         private String availabilityStatus;
+        private String healthStatus;
+        private String imageUrl;
 
         public PetBuilder petId(Long petId) { this.petId = petId; return this; }
         public PetBuilder name(String name) { this.name = name; return this; }
@@ -42,9 +48,11 @@ public class Pet {
         public PetBuilder age(int age) { this.age = age; return this; }
         public PetBuilder vaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; return this; }
         public PetBuilder availabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; return this; }
+        public PetBuilder healthStatus(String healthStatus) { this.healthStatus = healthStatus; return this; }
+        public PetBuilder imageUrl(String imageUrl) { this.imageUrl = imageUrl; return this; }
 
         public Pet build() {
-            return new Pet(petId, name, species, age, vaccinationStatus, availabilityStatus);
+            return new Pet(petId, name, species, age, vaccinationStatus, availabilityStatus, healthStatus, imageUrl);
         }
     }
 
@@ -61,4 +69,8 @@ public class Pet {
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
     public String getAvailabilityStatus() { return availabilityStatus; }
     public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    public String getHealthStatus() { return healthStatus; }
+    public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

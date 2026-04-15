@@ -28,6 +28,22 @@ public class DataSeeder {
                 adopter.setPassword("john123");
                 adopter.setUserType("ADOPTER");
                 userRepository.save(adopter);
+
+                // Seed a Breeder
+                com.petadoption.model.Breeder breeder = new com.petadoption.model.Breeder();
+                breeder.setName("Happy Breeder");
+                breeder.setEmail("breeder@example.com");
+                breeder.setPassword("breeder123");
+                breeder.setUserType("BREEDER");
+                userRepository.save(breeder);
+
+                // Seed a Veterinarian
+                com.petadoption.model.Veterinarian vet = new com.petadoption.model.Veterinarian();
+                vet.setName("Dr. Smith");
+                vet.setEmail("vet@clinic.com");
+                vet.setPassword("vet123");
+                vet.setUserType("VETERINARIAN");
+                userRepository.save(vet);
             }
             
             if (repository.count() == 0) {
@@ -37,6 +53,8 @@ public class DataSeeder {
                         .age(2)
                         .vaccinationStatus(true)
                         .availabilityStatus("AVAILABLE")
+                        .healthStatus("Excellent")
+                        .imageUrl("img/hero.png")
                         .build());
                 
                 repository.save(Pet.builder()
@@ -45,6 +63,8 @@ public class DataSeeder {
                         .age(1)
                         .vaccinationStatus(true)
                         .availabilityStatus("AVAILABLE")
+                        .healthStatus("Healthy")
+                        .imageUrl("img/pet.png")
                         .build());
                 
                 repository.save(Pet.builder()
@@ -53,6 +73,8 @@ public class DataSeeder {
                         .age(4)
                         .vaccinationStatus(false)
                         .availabilityStatus("AVAILABLE")
+                        .healthStatus("Needs Checkup")
+                        .imageUrl("img/pet.png")
                         .build());
 
                 repository.save(Pet.builder()
@@ -61,6 +83,8 @@ public class DataSeeder {
                         .age(3)
                         .vaccinationStatus(true)
                         .availabilityStatus("AVAILABLE")
+                        .healthStatus("Good")
+                        .imageUrl("img/pet.png")
                         .build());
             }
         };
