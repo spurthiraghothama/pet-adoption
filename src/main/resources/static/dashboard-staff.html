@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Dashboard | Furry Family</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body style="background: #fafafa;">
     <div class="container">
@@ -22,6 +22,7 @@
             <button class="btn btn-outline" onclick="showSection('manage-apps')">Visiting Log</button>
             <button class="btn btn-outline" onclick="showSection('queries')">User Inquiries</button>
             <button class="btn btn-outline" onclick="showSection('tasks')">Task Oversight</button>
+            <button class="btn btn-outline" onclick="showSection('vet-apps')">Vaccination Appointments</button>
         </nav>
 
         <section id="manage-pets-section" class="dash-section">
@@ -49,6 +50,11 @@
             </div>
             <div id="staff-task-list"></div>
         </section>
+
+        <section id="vet-apps-section" class="dash-section" style="display:none;">
+            <h2>Vaccination Appointments</h2>
+            <div id="vet-app-list"></div>
+        </section>
     </div>
 
     <!-- Modals -->
@@ -60,7 +66,7 @@
                 <div class="form-group"><label>Species</label><input type="text" id="pet-species" required placeholder="Dog / Cat"></div>
                 <div class="form-group"><label>Age</label><input type="number" id="pet-age" required></div>
                 <div class="form-group"><label>Health Status</label><input type="text" id="pet-health" value="Healthy"></div>
-                <div class="form-group"><label>Image URL</label><input type="text" id="pet-img" placeholder="img/pet.png"></div>
+                <div class="form-group"><label>Image URL</label><input type="text" id="pet-img" placeholder="/img/pet.png"></div>
                 <div class="form-group"><label>Vaccinated?</label><select id="pet-vacc"><option value="true">Yes</option><option value="false">No</option></select></div>
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Save Entry</button>
@@ -119,7 +125,7 @@
         </div>
     </div>
 
-    <script src="js/dashboard-staff.js"></script>
+    <script src="/js/dashboard-staff.js"></script>
     <script>
         const u = JSON.parse(localStorage.getItem('user'));
         if (!u || !u.userType.includes('STAFF')) window.location.href = 'login.html';

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Breeder Dashboard | Furry Family</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body style="background: #fafafa;">
     <div class="container">
@@ -20,6 +20,7 @@
         <nav class="dash-nav">
             <button class="btn btn-primary" onclick="showSection('my-pets')">Contribution Log</button>
             <button class="btn btn-outline" onclick="showSection('my-apps')">Visit Records</button>
+            <button class="btn btn-outline" onclick="showSection('vet-apps')">Vaccination Appointments</button>
         </nav>
 
         <section id="my-pets-section" class="dash-section">
@@ -33,6 +34,11 @@
         <section id="my-apps-section" class="dash-section" style="display: none;">
             <h2 style="margin-bottom: 2rem; font-size: 2rem;">Coordination Log</h2>
             <div id="breeder-app-list"></div>
+        </section>
+
+        <section id="vet-apps-section" class="dash-section" style="display:none;">
+            <h2>Vaccination Appointments</h2>
+            <div id="breeder-vet-list"></div>
         </section>
     </div>
 
@@ -67,6 +73,7 @@
             document.getElementById(`${id}-section`).style.display = 'block';
             if (id === 'my-pets') loadMyPets();
             if (id === 'my-apps') loadMyApps();
+            if (id === 'vet-apps') loadVetApps();
         }
 
         async function loadMyPets() {
@@ -115,6 +122,21 @@
                     <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
                 </div>
             `).join('') : '<p>No visiting records yet.</p>';
+        }
+
+        async function loadVetApps() {
+            const res = await fetch('/appointments/all');
+            const apps = await res.json();
+
+            const vets = apps.filter(a => a.appointmentType === 'VET_CHECK');
+
+            document.getElementById('breeder-vet-list').innerHTML = vets.map(a => `
+                <div class="glass-panel" style="margin-bottom:1rem">
+                    <h3>${a.pet?.name}</h3>
+                    <p>${a.date} | ${a.time}</p>
+                    <p>Status: ${a.status}</p>
+                </div>
+            `).join('');
         }
 
         showSection('my-pets');

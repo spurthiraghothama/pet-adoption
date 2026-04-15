@@ -92,14 +92,30 @@ async function loadStaffApps() {
                 <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
                 <p>Status: <strong>${a.status}</strong></p>
             </div>
-            ${a.status === 'PENDING' ? `
-                <div style="display:flex; gap:0.5rem">
-                    <button class="btn btn-primary" onclick="updateAppStatus(${a.appointmentId}, 'APPROVED')">Approve</button>
-                    <button class="btn btn-outline" style="border-color:#ff7675; color:#ff7675" onclick="updateAppStatus(${a.appointmentId}, 'REJECTED')">Reject</button>
-                </div>
-            ` : ''}
+            ${a.status === 'BOOKED' ? `
+            <button class="btn btn-primary" onclick="confirmApp(${a.appointmentId})">
+                Confirm
+            </button>
+        ` : ''}
+
+        ${a.status === 'CONFIRMED' ? `
+            <button class="btn btn-outline" onclick="completeApp(${a.appointmentId})">
+                Complete
+            </button>
+        ` : ''}
         </div>
     `).join('');
+}
+
+async function confirmApp(id) {
+    await fetch(`/appointments/${id}/confirm`, { method: 'POST' });
+    loadStaffApps();
+}
+
+async function completeApp(id) {
+    await fetch(`/appointments/${id}/complete`, { method: 'POST' });
+    loadStaffApps();
+    loadStaffPets();
 }
 
 async function updateAppStatus(id, status) {
@@ -173,6 +189,35 @@ document.getElementById('add-task-form').addEventListener('submit', async (e) =>
     document.getElementById('task-modal').style.display = 'none';
     loadStaffTasks();
 });
+
+if (id === 'vet-apps') loadVetApps();
+
+async function loadVetApps() {
+    const res = await fetch('/appointments/all');
+    const apps = await res.json();
+
+    const vets = apps.filter(a => a.appointmentType === 'VET_CHECK');
+    const list = document.getElementById('vet-app-list');
+
+    list.innerHTML = vets.map(a => `
+        <div class="glass-panel" style="margin-bottom:1rem">
+            <h3>${a.pet?.name}</h3>
+            <p>${a.date} | ${a.time}</p>
+            <p>Status: ${a.status}</p>
+            ${a.status !== 'COMPLETED' ? `
+                <button class="btn btn-primary" onclick="completeApp(${a.appointmentId})">
+                    Mark Completed
+                </button>
+            ` : '<p>✅ Completed</p>'}
+        </div>
+    `).join('');
+}
+
+async function completeApp(id) {
+    await fetch(`/appointments/${id}/complete`, { method: 'POST' });
+    loadVetApps();
+    loadStaffPets();
+}
 
 // Init
 showSection('manage-pets');

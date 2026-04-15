@@ -1,8 +1,16 @@
 package com.petadoption.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Appointment {
@@ -12,8 +20,11 @@ public class Appointment {
     
     private LocalDate date;
     private LocalTime time;
-    private String status;
-    private String appointmentType; // e.g., "VISIT", "VET_CHECK"
+
+    @Enumerated(EnumType.STRING)
+    private AppointmentStatus status;
+
+    private String appointmentType; // VISIT / VET_CHECK
 
     @ManyToOne
     @JoinColumn(name = "pet_id")
@@ -25,7 +36,8 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(Long appointmentId, LocalDate date, LocalTime time, String status, String appointmentType, Pet pet, User user) {
+    public Appointment(Long appointmentId, LocalDate date, LocalTime time,
+                       AppointmentStatus status, String appointmentType, Pet pet, User user) {
         this.appointmentId = appointmentId;
         this.date = date;
         this.time = time;
@@ -43,15 +55,15 @@ public class Appointment {
         private Long appointmentId;
         private LocalDate date;
         private LocalTime time;
-        private String status;
+        private AppointmentStatus status;
         private String appointmentType;
         private Pet pet;
         private User user;
 
-        public AppointmentBuilder appointmentId(Long appointmentId) { this.appointmentId = appointmentId; return this; }
+        public AppointmentBuilder appointmentId(Long appointmentId) { return this; }
         public AppointmentBuilder date(LocalDate date) { this.date = date; return this; }
         public AppointmentBuilder time(LocalTime time) { this.time = time; return this; }
-        public AppointmentBuilder status(String status) { this.status = status; return this; }
+        public AppointmentBuilder status(AppointmentStatus status) { this.status = status; return this; }
         public AppointmentBuilder appointmentType(String appointmentType) { this.appointmentType = appointmentType; return this; }
         public AppointmentBuilder pet(Pet pet) { this.pet = pet; return this; }
         public AppointmentBuilder user(User user) { this.user = user; return this; }
@@ -61,15 +73,15 @@ public class Appointment {
         }
     }
 
-    // Getters and Setters
+    // Getters & Setters
     public Long getAppointmentId() { return appointmentId; }
     public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
     public LocalTime getTime() { return time; }
     public void setTime(LocalTime time) { this.time = time; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public AppointmentStatus getStatus() { return status; }
+    public void setStatus(AppointmentStatus status) { this.status = status; }
     public String getAppointmentType() { return appointmentType; }
     public void setAppointmentType(String appointmentType) { this.appointmentType = appointmentType; }
     public Pet getPet() { return pet; }
