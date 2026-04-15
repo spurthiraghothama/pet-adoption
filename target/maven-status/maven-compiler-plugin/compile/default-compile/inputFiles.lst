@@ -1,11 +1,13 @@
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\config\DataSeeder.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\AdminController.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\AdoptionController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\AppointmentController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\AuthController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\PetController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\QueryController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\TaskController.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\controller\UserController.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\dto\AdoptionDTO.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\dto\AppointmentDTO.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\dto\LoginDTO.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\dto\PetDTO.java
@@ -16,6 +18,7 @@ C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\exception\Gl
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\exception\ResourceNotFoundException.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\factory\UserFactory.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Adopter.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Adoption.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Appointment.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Breeder.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Pet.java
@@ -30,11 +33,14 @@ C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Veteri
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\VeterinarianClinic.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\model\Volunteer.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\PetAdoptionApplication.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\AdoptionRepository.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\AppointmentRepository.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\PetRepository.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\QueryRepository.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\TaskRepository.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\repository\UserRepository.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\service\AdoptionService.java
+C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\service\AdoptionServiceImpl.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\service\AppointmentService.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\service\AppointmentServiceImpl.java
 C:\Users\HP\Desktop\Sem6\pet-adoption\src\main\java\com\petadoption\service\PetService.java

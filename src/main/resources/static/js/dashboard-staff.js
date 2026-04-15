@@ -81,27 +81,61 @@ document.getElementById('add-pet-form').addEventListener('submit', async (e) => 
     loadStaffPets();
 });
 
+
 async function loadStaffApps() {
     const list = document.getElementById('staff-app-list');
     const response = await fetch('/appointments/all');
     const apps = await response.json();
+
     list.innerHTML = apps.map(a => `
-        <div class="glass-panel animate-in" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+        <div class="glass-panel animate-in"
+             style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+
             <div>
-                <span class="status-tag" style="background:${a.appointmentType==='VET_CHECK'?'#818cf8':'#dfa164'}; color:white">${a.appointmentType || 'VISIT'}</span>
-                <h3 style="margin-top:0.5rem">${a.pet ? a.pet.name : 'Unknown Pet'} with ${a.user ? a.user.name : 'Unknown User'}</h3>
+                <span class="status-tag"
+                      style="background:${a.appointmentType === 'VET_CHECK' ? '#818cf8' : '#dfa164'}; color:white">
+                    ${a.appointmentType}
+                </span>
+
+                <h3 style="margin-top:0.5rem">
+                    ${a.pet ? a.pet.name : 'Unknown Pet'} with ${a.user ? a.user.name : 'Unknown User'}
+                </h3>
+
                 <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
                 <p>Status: <strong>${a.status}</strong></p>
+
+                ${a.status === 'APPROVED' ? `
+                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
+                        <button class="btn btn-primary"
+                                onclick="markVisit(${a.appointmentId}, 'complete')">
+                            Complete
+                        </button>
+
+                        <button class="btn btn-outline"
+                                onclick="markVisit(${a.appointmentId}, 'expire')">
+                            Expire
+                        </button>
+                    </div>
+                ` : ''}
             </div>
+
             ${a.status === 'PENDING' ? `
                 <div style="display:flex; gap:0.5rem">
-                    <button class="btn btn-primary" onclick="updateAppStatus(${a.appointmentId}, 'APPROVED')">Approve</button>
-                    <button class="btn btn-outline" style="border-color:#ff7675; color:#ff7675" onclick="updateAppStatus(${a.appointmentId}, 'REJECTED')">Reject</button>
+                    <button class="btn btn-primary"
+                            onclick="updateAppStatus(${a.appointmentId}, 'APPROVED')">
+                        Approve
+                    </button>
+
+                    <button class="btn btn-outline"
+                            onclick="updateAppStatus(${a.appointmentId}, 'REJECTED')">
+                        Reject
+                    </button>
                 </div>
             ` : ''}
         </div>
     `).join('');
 }
+
 
 async function updateAppStatus(id, status) {
     await fetch(`/appointments/${id}/status?status=${status}`, { method: 'PATCH' });
@@ -194,6 +228,12 @@ async function loadVolunteerStatus() {
     `).join('') : '<p>No volunteers registered.</p>';
 }
 
+async function markVisit(id, action) {
+    await fetch(`/appointments/${id}/${action}`, {
+        method: 'PATCH'
+    });
+    loadStaffApps();
+}
 
 document.getElementById('add-task-form').addEventListener('submit', async (e) => {
     e.preventDefault();

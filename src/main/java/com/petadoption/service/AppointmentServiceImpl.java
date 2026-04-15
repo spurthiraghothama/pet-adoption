@@ -62,4 +62,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         app.setStatus(status);
         return appointmentRepository.save(app);
     }
+
+    @Override
+    public Appointment markCompleted(Long id) {
+        Appointment app = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        app.setStatus("COMPLETED");
+        return appointmentRepository.save(app);
+    }
+
+    @Override
+    public Appointment markExpired(Long id) {
+        Appointment app = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Appointment not found"));
+
+        app.setStatus("EXPIRED");
+        return appointmentRepository.save(app);
+    }
+
 }

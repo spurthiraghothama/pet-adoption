@@ -20,6 +20,7 @@
         <nav class="dash-nav">
             <button class="btn btn-primary" onclick="showSection('pets')">Browse Furry Friends</button>
             <button class="btn btn-outline" onclick="showSection('appointments')">My Appointments</button>
+            <button class="btn btn-outline" onclick="showSection('adoptions')">My Adoptions</button>
             <button class="btn btn-outline" onclick="showSection('queries')">Help Requests</button>
         </nav>
 
@@ -31,6 +32,11 @@
         <section id="appointments-section" class="dash-section" style="display: none;">
             <h2 style="margin-bottom: 2rem; font-size: 2rem;">My Scheduled Visits</h2>
             <div id="appointment-list"></div>
+        </section>
+
+        <section id="adoptions-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">My Adoptions</h2>
+            <div id="adoption-list"></div>
         </section>
 
         <section id="queries-section" class="dash-section" style="display: none;">
