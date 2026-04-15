@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import com.petadoption.model.TaskStatus;
 
 @RestController
 @RequestMapping("/tasks")
@@ -27,7 +28,7 @@ public class TaskController {
         Task task = new Task();
         task.setDescription((String) payload.get("description"));
         task.setSpecifications((String) payload.get("specifications"));
-        task.setStatus("PENDING");
+        task.setStatus(TaskStatus.DRAFTED);
         
         if (payload.containsKey("volunteerId") && payload.get("volunteerId") != null) {
             Long vId = Long.valueOf(payload.get("volunteerId").toString());
@@ -42,7 +43,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}/accept")
-    public ResponseEntity<Task> acceptTask(@PathVariable Long id, @RequestParam String status) {
+    public ResponseEntity<Task> acceptTask(@PathVariable Long id, @RequestParam TaskStatus status) {
         Task task = taskRepository.findById(id).orElseThrow();
         task.setStatus(status);
         return ResponseEntity.ok(taskRepository.save(task));

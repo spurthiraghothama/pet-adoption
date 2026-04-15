@@ -9,7 +9,9 @@ public class Task {
     private Long taskId;
     private String description;
     private String specifications;
-    private String status;
+    
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
 
     @ManyToOne
     @JoinColumn(name = "volunteer_id")
@@ -23,8 +25,8 @@ public class Task {
     public void setDescription(String description) { this.description = description; }
     public String getSpecifications() { return specifications; }
     public void setSpecifications(String specifications) { this.specifications = specifications; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public TaskStatus getStatus() { return status; }
+    public void setStatus(TaskStatus status) { this.status = status; }
     public Volunteer getVolunteer() { return volunteer; }
     public void setVolunteer(Volunteer volunteer) { this.volunteer = volunteer; }
 }

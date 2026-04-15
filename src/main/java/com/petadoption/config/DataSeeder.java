@@ -1,10 +1,13 @@
 package com.petadoption.config;
 
 import com.petadoption.model.Pet;
+import com.petadoption.model.Status;
 import com.petadoption.repository.PetRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.petadoption.model.Status;
+import com.petadoption.model.TaskStatus;
 
 @Configuration
 public class DataSeeder {
@@ -52,7 +55,7 @@ public class DataSeeder {
                         .species("Dog")
                         .age(2)
                         .vaccinationStatus(true)
-                        .availabilityStatus("AVAILABLE")
+                        .availabilityStatus(Status.AVAILABLE)
                         .healthStatus("Excellent")
                         .imageUrl("img/hero.png")
                         .build());
@@ -62,7 +65,7 @@ public class DataSeeder {
                         .species("Cat")
                         .age(1)
                         .vaccinationStatus(true)
-                        .availabilityStatus("AVAILABLE")
+                        .availabilityStatus(Status.AVAILABLE)
                         .healthStatus("Healthy")
                         .imageUrl("img/pet.png")
                         .build());
@@ -72,7 +75,7 @@ public class DataSeeder {
                         .species("Dog")
                         .age(4)
                         .vaccinationStatus(false)
-                        .availabilityStatus("AVAILABLE")
+                        .availabilityStatus(Status.AVAILABLE)
                         .healthStatus("Needs Checkup")
                         .imageUrl("img/pet.png")
                         .build());
@@ -82,7 +85,7 @@ public class DataSeeder {
                         .species("Cat")
                         .age(3)
                         .vaccinationStatus(true)
-                        .availabilityStatus("AVAILABLE")
+                        .availabilityStatus(Status.AVAILABLE)
                         .healthStatus("Good")
                         .imageUrl("img/pet.png")
                         .build());
