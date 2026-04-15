@@ -111,7 +111,7 @@ async function loadMyAppointments() {
                             Not Interested
                         </button>
                     ` : a.status === 'COMPLETED' ? `
-                        <span style="color:#55efc4; font-size:0.85rem; font-weight:600;">✅ Adopted</span>
+                        <span style="color:#55efc4; font-size:0.85rem; font-weight:600;"> Adopted</span>
                     ` : ''}
 
                     ${a.status === 'EXPIRED' ? `
