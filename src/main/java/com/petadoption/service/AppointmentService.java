@@ -8,4 +8,6 @@ public interface AppointmentService {
     void cancelAppointment(Long appointmentId);
     java.util.List<Appointment> getAllAppointments();
     Appointment updateStatus(Long id, String status);
+    Appointment markCompleted(Long id);
+    Appointment markExpired(Long id);
 }

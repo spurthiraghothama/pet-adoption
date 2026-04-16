@@ -22,6 +22,7 @@
             <button class="btn btn-outline" onclick="showSection('manage-apps')">Visiting Log</button>
             <button class="btn btn-outline" onclick="showSection('queries')">User Inquiries</button>
             <button class="btn btn-outline" onclick="showSection('tasks')">Task Oversight</button>
+            <button class="btn btn-outline" onclick="showSection('volunteers')">Volunteer Status</button>
         </nav>
 
         <section id="manage-pets-section" class="dash-section">
@@ -45,10 +46,16 @@
         <section id="tasks-section" class="dash-section" style="display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                 <h2 style="font-size: 2rem;">Volunteer Assignments</h2>
-                <button class="btn btn-primary" onclick="openModal('task-modal')">+ Assign Task</button>
+                <button class="btn btn-primary" onclick="openModal('task-modal')">+ Publish Task</button>
             </div>
             <div id="staff-task-list"></div>
         </section>
+
+        <section id="volunteers-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Volunteer Availability</h2>
+            <div id="volunteer-status-list"></div>
+        </section>
+
     </div>
 
     <!-- Modals -->
@@ -90,12 +97,6 @@
             <h2>New Volunteer Task</h2>
             <form id="add-task-form">
                 <div class="form-group"><label>Task Title</label><input type="text" id="task-desc" required></div>
-                <div class="form-group">
-                    <label>Assign To Volunteer</label>
-                    <select id="task-vol" style="background:#fff;">
-                        <option value="">-- Unassigned --</option>
-                    </select>
-                </div>
                 <div class="form-group"><label>Details</label><textarea id="task-specs" rows="3"></textarea></div>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Assign</button>

@@ -8,6 +8,7 @@ window.showSection = function(id) {
         if (id === 'pets') loadPets();
         if (id === 'appointments') loadMyAppointments();
         if (id === 'queries') loadQueries();
+        if (id === 'adoptions') loadMyAdoptions();
     }
 };
 
@@ -47,32 +48,102 @@ async function loadPets() {
     }
 }
 
+
 async function loadMyAppointments() {
     const list = document.getElementById('appointment-list');
+
     try {
         const response = await fetch('/appointments/all');
         const all = await response.json();
-        const mine = all.filter(a => a.user && a.user.userId === user.userId);
+
+        const mine = all
+            .filter(a => a.user && a.user.userId === user.userId)
+            .map(a => ({
+                ...a,
+                status: (a.status || "").trim().toUpperCase()
+            }));
+
         list.innerHTML = mine.length ? mine.map(a => `
-            <div class="glass-panel animate-in" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+
+            <div class="glass-panel animate-in"
+                style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+
                 <div>
-                    <span class="status-tag" style="background:${getStatusColor(a.status)}; color:white">${a.status}</span>
-                    <h3 style="margin-top:0.5rem">Meeting with ${a.pet ? a.pet.name : 'Unknown Pet'}</h3>
-                    <p style="color:var(--text-muted)">Date: ${a.date} | Time: ${a.time}</p>
+                    <span class="status-tag"
+                        style="background:${getStatusColor(a.status)}; color:white">
+                        ${a.status}
+                    </span>
+
+                    <h3 style="margin-top:0.5rem">
+                        Meeting with ${a.pet ? a.pet.name : 'Unknown Pet'}
+                    </h3>
+
+                    <p style="color:var(--text-muted)">
+                        Date: ${a.date} | Time: ${a.time}
+                    </p>
+
+                    ${a.status === 'EXPIRED' ? `
+                        <p style="color:#ff7675; font-weight:600; margin-top:0.5rem">
+                            This visit has expired.
+                        </p>
+                    ` : ''}
+
                 </div>
-                <button class="btn" onclick="cancelApp(${a.appointmentId})" style="background:#ff7675; color:white; padding:0.5rem 1rem; font-size:0.8rem">Cancel</button>
+
+                <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end">
+
+                    ${a.status === 'PENDING' ? `
+                        <button class="btn"
+                            onclick="cancelApp(${a.appointmentId})"
+                            style="background:#ff7675; color:white; padding:0.5rem 1rem; font-size:0.8rem">
+                            Cancel
+                        </button>
+                    ` : ''}
+
+                    ${a.status === 'COMPLETED' && a.pet && a.pet.availabilityStatus !== 'ADOPTED' ? `
+                        <button class="btn btn-primary"
+                            onclick="adoptPet(${a.pet.petId})">
+                            Adopt
+                        </button>
+
+                        <button class="btn btn-outline"
+                            onclick="notAdopt()">
+                            Not Interested
+                        </button>
+                    ` : a.status === 'COMPLETED' ? `
+                        <span style="color:#55efc4; font-size:0.85rem; font-weight:600;"> Adopted</span>
+                    ` : ''}
+
+                    ${a.status === 'EXPIRED' ? `
+                        <span style="color:var(--text-muted); font-size:0.8rem">
+                            No actions available
+                        </span>
+                    ` : ''}
+
+                </div>
             </div>
+
         `).join('') : '<p>No appointments booked yet.</p>';
+
     } catch (e) {
         console.error("Failed to load appointments", e);
         list.innerHTML = '<p>Error loading appointments.</p>';
     }
 }
 
+
 function getStatusColor(status) {
-    if (status === 'APPROVED') return '#55efc4';
-    if (status === 'REJECTED') return '#ff7675';
-    return '#fdcb6e'; // PENDING
+    status = (status || "").toUpperCase();
+
+    if (status === 'COMPLETED') return '#55efc4';
+    if (status === 'EXPIRED') return '#ff7675';
+    if (status === 'PENDING') return '#fdcb6e';
+
+    return '#ccc';
+}
+
+function notAdopt() {
+    showSection('pets');
 }
 
 window.cancelApp = async function(id) {
@@ -135,6 +206,78 @@ document.getElementById('ask-query-form').addEventListener('submit', async (e) =
         alert('Connection error. Please try again.');
     }
 });
+
+async function adoptPet(petId) {
+    try {
+        const response = await fetch('/adoption/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                petId,
+                adopterId: user.userId
+            })
+        });
+
+        if (!response.ok) {
+            const msg = await response.text();
+            alert("Adoption failed: " + msg);
+            return;
+        }
+
+        alert("🎉 Congratulations! Adoption successful!");
+        showSection('adoptions');
+
+    } catch (err) {
+        console.error(err);
+        alert("Server error during adoption");
+    }
+}
+
+async function loadMyAdoptions() {
+    const list = document.getElementById('adoption-list');
+    list.innerHTML = '<p>Loading...</p>';
+    try {
+        const response = await fetch(`/adoption/my/${user.userId}`);
+        const adoptions = await response.json();
+
+        if (!adoptions.length) {
+            list.innerHTML = '<p>You have not adopted any pets yet.</p>';
+            return;
+        }
+
+        list.innerHTML = `
+            <table style="width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+                <thead>
+                    <tr style="background:var(--primary, #f0c040); text-align:left;">
+                        <th style="padding:1rem 1.2rem;">Pet</th>
+                        <th style="padding:1rem 1.2rem;">Species</th>
+                        <th style="padding:1rem 1.2rem;">Adoption Date</th>
+                        <th style="padding:1rem 1.2rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${adoptions.map((a, i) => `
+                        <tr style="border-top:1px solid #f0f0f0; background:${i % 2 === 0 ? 'white' : '#fafafa'}">
+                            <td style="padding:1rem 1.2rem; font-weight:600;">${a.pet ? a.pet.name : '—'}</td>
+                            <td style="padding:1rem 1.2rem; color:var(--text-muted, #888);">${a.pet ? a.pet.species : '—'}</td>
+                            <td style="padding:1rem 1.2rem;">${a.adoptionDate ? new Date(a.adoptionDate).toLocaleDateString() : '—'}</td>
+                            <td style="padding:1rem 1.2rem;">
+                                <span style="background:#55efc4; color:#1a6650; padding:0.3rem 0.8rem; border-radius:20px; font-size:0.8rem; font-weight:700;">
+                                    ${a.status || 'ACTIVE'}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (e) {
+        console.error("Failed to load adoptions", e);
+        list.innerHTML = '<p>Error loading adoptions.</p>';
+    }
+}
+
+
 
 document.getElementById('booking-form').addEventListener('submit', async (e) => {
     e.preventDefault();

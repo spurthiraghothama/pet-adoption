@@ -6,24 +6,87 @@
     <title>Volunteer Dashboard | Furry Family</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+    </style>
+
 </head>
 <body style="background: #fafafa;">
     <div class="container">
         <header>
             <a href="index.html" class="logo">🐾 Furry Family <span style="font-size: 0.7rem; background: var(--primary); padding: 4px 10px; border-radius: 20px; color: black; margin-left:10px;">VOLUNTEER</span></a>
             <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Available</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="availability-toggle" checked onchange="toggleAvailability()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
                 <span id="user-display" style="font-weight: 700;"></span>
                 <button class="btn btn-outline" style="padding: 0.5rem 1.2rem;" onclick="logout()">Logout</button>
             </div>
         </header>
 
         <nav class="dash-nav">
-            <button class="btn btn-primary" onclick="showSection('tasks')">My Queue</button>
+            <button class="btn btn-primary" onclick="showSection('open-tasks')">Open Tasks</button>
+            <button class="btn btn-outline" onclick="showSection('tasks')">My Queue</button>
             <button class="btn btn-outline" onclick="showSection('reg-pet')">Register Rescue</button>
         </nav>
 
-        <section id="tasks-section" class="dash-section">
-            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Available Opportunities</h2>
+        <!-- 🟢 OPEN TASKS -->
+        <section id="open-tasks-section" class="dash-section">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Open Tasks</h2>
+            <div id="open-task-grid" class="pet-grid"></div>
+        </section>
+
+        <!-- 🔵 MY QUEUE -->
+        <section id="tasks-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">My Queue</h2>
             <div id="volunteer-task-grid" class="pet-grid"></div>
         </section>
 
@@ -54,34 +117,132 @@
         if (!u || u.userType !== 'VOLUNTEER') window.location.href = 'login.html';
         document.getElementById('user-display').innerText = u.name;
 
+        // Load availability status on page load
+        async function loadAvailabilityStatus() {
+            const res = await fetch(`/volunteers/${u.userId}/status`);
+            const volunteer = await res.json();
+            const toggle = document.getElementById('availability-toggle');
+            toggle.checked = volunteer.availabilityStatus !== false;
+        }
+
+        async function toggleAvailability() {
+            const toggle = document.getElementById('availability-toggle');
+            const status = toggle.checked;
+            
+            await fetch(`/volunteers/${u.userId}/availability?status=${status}`, {
+                method: 'PATCH'
+            });
+            
+            // Reload open tasks if we're on that section
+            const openTasksSection = document.getElementById('open-tasks-section');
+            if (openTasksSection.style.display !== 'none') {
+                loadOpenTasks();
+            }
+        }
+
         function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
         
         window.showSection = function(id) {
             document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
             document.getElementById(`${id}-section`).style.display = 'block';
-            if (id === 'tasks') loadTasks();
+
+            if (id === 'open-tasks') loadOpenTasks();
+            if (id === 'tasks') loadMyTasks();
         };
 
-        async function loadTasks() {
-            const grid = document.getElementById('volunteer-task-grid');
-            const res = await fetch('/tasks');
+        // 🟢 OPEN TASKS - Only show if available
+        async function loadOpenTasks() {
+            const grid = document.getElementById('open-task-grid');
+            const toggle = document.getElementById('availability-toggle');
+            
+            // Check if volunteer is available
+            if (!toggle.checked) {
+                grid.innerHTML = `
+                    <div class="glass-panel" style="text-align: center; padding: 3rem;">
+                        <h3 style="color: var(--text-muted);">⏸️ You're currently unavailable</h3>
+                        <p style="color: var(--text-muted); margin-top: 1rem;">
+                            Please turn on your availability to view open tasks
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const res = await fetch('/tasks/open');
             const tasks = await res.json();
+
             grid.innerHTML = tasks.length ? tasks.map(t => `
                 <div class="glass-panel">
-                    <span class="status-tag" style="background:${t.status==='PENDING'?'var(--primary)':'#55efc4'}; color:black">${t.status}</span>
+                    <span class="status-tag" style="background:var(--primary); color:black">${t.status}</span>
                     <h3 style="margin-top:1rem">${t.description}</h3>
                     <p style="color:var(--text-muted); margin-bottom:1.5rem">${t.specifications || 'Standard duty'}</p>
-                    <div style="display:flex; gap:0.5rem">
-                        <button class="btn btn-primary" style="font-size:0.8rem" onclick="updateTask(${t.taskId}, 'IN_PROGRESS')">Handle</button>
-                        <button class="btn btn-outline" style="font-size:0.8rem; border-color:#55efc4" onclick="updateTask(${t.taskId}, 'COMPLETED')">Complete</button>
-                    </div>
+
+                    <button class="btn btn-primary" style="font-size:0.8rem"
+                        onclick="chooseTask(${t.taskId})">
+                        Choose
+                    </button>
                 </div>
-            `).join('') : '<p>No tasks assigned.</p>';
+            `).join('') : '<p>No open tasks available.</p>';
         }
 
-        async function updateTask(id, status) {
-            await fetch(`/tasks/${id}/accept?status=${status}`, { method: 'PATCH' });
-            loadTasks();
+        // 🔵 MY TASKS
+        async function loadMyTasks() {
+            const grid = document.getElementById('volunteer-task-grid');
+            const res = await fetch(`/tasks/volunteer/${u.userId}`);
+            const tasks = await res.json();
+
+            grid.innerHTML = tasks.length ? tasks.map(t => `
+                <div class="glass-panel">
+                    <span class="status-tag" style="background:#55efc4; color:black">${t.status}</span>
+                    <h3 style="margin-top:1rem">${t.description}</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem">${t.specifications || 'Standard duty'}</p>
+                    ${t.volunteer ? `<p style="font-size:0.85rem; color:var(--accent-orange)">Assigned to: ${t.volunteer.name}</p>` : ''}
+
+                    <div style="display:flex; gap:0.5rem">
+
+                        ${t.status === 'ASSIGNED' ? `
+                            <button class="btn btn-primary" style="font-size:0.8rem"
+                                onclick="startTask(${t.taskId})">
+                                Start
+                            </button>
+                        ` : ''}
+
+                        ${t.status === 'IN_PROGRESS' ? `
+                            <button class="btn btn-outline" style="font-size:0.8rem; border-color:#55efc4"
+                                onclick="completeTask(${t.taskId})">
+                                Complete
+                            </button>
+                        ` : ''}
+
+                        ${t.status === 'MONITORED' ? `
+                            <span style="color:orange;">Waiting for approval</span>
+                        ` : ''}
+
+                    </div>
+                </div>
+            `).join('') : '<p>No tasks in your queue.</p>';
+        }
+
+        async function chooseTask(taskId) {
+            await fetch(`/tasks/${taskId}/choose/${u.userId}`, {
+                method: 'PATCH'
+            });
+            loadOpenTasks();
+            alert('Task added to your queue!');
+        }
+
+        async function completeTask(taskId) {
+            await fetch(`/tasks/${taskId}/complete`, {
+                method: 'PATCH'
+            });
+            loadMyTasks();
+        }
+
+        async function startTask(taskId) {
+            await fetch(`/tasks/${taskId}/start`, {
+                method: 'PATCH'
+            });
+            loadMyTasks();
         }
 
         document.getElementById('rescue-form').addEventListener('submit', async (e) => {
@@ -103,7 +264,12 @@
             showSection('tasks');
         });
 
-        loadTasks();
-    </script>
+        // Initialize
+        loadAvailabilityStatus();
+        showSection('open-tasks');
+</script>
+
+
+
 </body>
 </html>

@@ -36,4 +36,15 @@ public class AppointmentController {
     public ResponseEntity<Appointment> updateStatus(@PathVariable Long id, @RequestParam String status) {
         return ResponseEntity.ok(appointmentService.updateStatus(id, status));
     }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<Appointment> complete(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.markCompleted(id));
+    }
+
+    @PatchMapping("/{id}/expire")
+    public ResponseEntity<Appointment> expire(@PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.markExpired(id));
+    }
+
 }

@@ -8,6 +8,8 @@ import com.petadoption.singleton.PetRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import com.petadoption.model.Status;
+
 
 @Service
 public class PetServiceImpl implements PetService {
@@ -22,7 +24,7 @@ public class PetServiceImpl implements PetService {
                 .species(petDTO.getSpecies())
                 .age(petDTO.getAge())
                 .vaccinationStatus(petDTO.isVaccinationStatus())
-                .availabilityStatus(petDTO.getAvailabilityStatus())
+                .availabilityStatus(Status.REGISTERED)
                 .build();
         
         Pet savedPet = petRepository.save(pet);
@@ -32,7 +34,7 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public List<Pet> getAvailablePets() {
-        return petRepository.findByAvailabilityStatus("AVAILABLE");
+        return petRepository.findByAvailabilityStatus(Status.AVAILABLE);
     }
 
     @Override

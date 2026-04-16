@@ -1,6 +1,8 @@
 package com.petadoption.model;
 
 import jakarta.persistence.*;
+//import com.petadoption.model.Status;
+
 
 @Entity
 public class Pet {
@@ -11,13 +13,14 @@ public class Pet {
     private String species;
     private int age;
     private boolean vaccinationStatus;
-    private String availabilityStatus;
+    @Enumerated(EnumType.STRING)
+    private Status availabilityStatus;
     private String healthStatus;
     private String imageUrl;
 
     public Pet() {}
 
-    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, String availabilityStatus, String healthStatus, String imageUrl) {
+    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, Status availabilityStatus, String healthStatus, String imageUrl) {
         this.petId = petId;
         this.name = name;
         this.species = species;
@@ -38,7 +41,7 @@ public class Pet {
         private String species;
         private int age;
         private boolean vaccinationStatus;
-        private String availabilityStatus;
+        private Status availabilityStatus;
         private String healthStatus;
         private String imageUrl;
 
@@ -47,7 +50,7 @@ public class Pet {
         public PetBuilder species(String species) { this.species = species; return this; }
         public PetBuilder age(int age) { this.age = age; return this; }
         public PetBuilder vaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; return this; }
-        public PetBuilder availabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; return this; }
+        public PetBuilder availabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; return this; }
         public PetBuilder healthStatus(String healthStatus) { this.healthStatus = healthStatus; return this; }
         public PetBuilder imageUrl(String imageUrl) { this.imageUrl = imageUrl; return this; }
 
@@ -67,8 +70,8 @@ public class Pet {
     public void setAge(int age) { this.age = age; }
     public boolean isVaccinationStatus() { return vaccinationStatus; }
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
-    public String getAvailabilityStatus() { return availabilityStatus; }
-    public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    public Status getAvailabilityStatus() { return availabilityStatus; }
+    public void setAvailabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; }
     public String getHealthStatus() { return healthStatus; }
     public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
     public String getImageUrl() { return imageUrl; }

@@ -1,11 +1,13 @@
 package com.petadoption.dto;
+import com.petadoption.model.Status;
+
 
 public class PetDTO {
     private String name;
     private String species;
     private int age;
     private boolean vaccinationStatus;
-    private String availabilityStatus;
+    private Status availabilityStatus;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -15,6 +17,6 @@ public class PetDTO {
     public void setAge(int age) { this.age = age; }
     public boolean isVaccinationStatus() { return vaccinationStatus; }
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
-    public String getAvailabilityStatus() { return availabilityStatus; }
-    public void setAvailabilityStatus(String availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    public Status getAvailabilityStatus() { return availabilityStatus; }
+    public void setAvailabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; }
 }
