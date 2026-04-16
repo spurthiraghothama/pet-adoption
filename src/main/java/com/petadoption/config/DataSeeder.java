@@ -41,12 +41,7 @@ public class DataSeeder {
                 userRepository.save(breeder);
 
                 // Seed a Veterinarian
-                com.petadoption.model.Veterinarian vet = new com.petadoption.model.Veterinarian();
-                vet.setName("Dr. Smith");
-                vet.setEmail("vet@clinic.com");
-                vet.setPassword("vet123");
-                vet.setUserType("VETERINARIAN");
-                userRepository.save(vet);
+                
             }
             
             if (repository.count() == 0) {

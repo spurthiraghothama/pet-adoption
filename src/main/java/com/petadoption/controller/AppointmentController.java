@@ -46,5 +46,4 @@ public class AppointmentController {
     public ResponseEntity<Appointment> expire(@PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.markExpired(id));
     }
-
 }

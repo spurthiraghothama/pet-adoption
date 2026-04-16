@@ -6,7 +6,6 @@ com\petadoption\service\QueryServiceImpl.class
 com\petadoption\PetAdoptionApplication.class
 com\petadoption\repository\PetRepository.class
 com\petadoption\model\Appointment$AppointmentBuilder.class
-com\petadoption\model\Veterinarian.class
 com\petadoption\service\QueryService.class
 com\petadoption\controller\AdminController.class
 com\petadoption\dto\UserDTO.class
@@ -42,5 +41,4 @@ com\petadoption\repository\AppointmentRepository.class
 com\petadoption\repository\QueryRepository.class
 com\petadoption\controller\AppointmentController.class
 com\petadoption\model\Task.class
-com\petadoption\config\DataSeeder.class
 com\petadoption\dto\LoginDTO.class
