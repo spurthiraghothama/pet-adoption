@@ -23,8 +23,12 @@ public class UserController {
     private UserRepository userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody UserDTO userDTO) {
-        return new ResponseEntity<>(userService.registerUser(userDTO), HttpStatus.CREATED);
+    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO) {
+        try {
+            return new ResponseEntity<>(userService.registerUser(userDTO), HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping
@@ -51,8 +55,7 @@ public class UserController {
     // Get all volunteers with availability status (for staff view)
     @GetMapping("/volunteers/status")
     public ResponseEntity<?> getVolunteersWithStatus() {
-        List<User> volunteers = userRepository.findByUserType("VOLUNTEER");
-        return ResponseEntity.ok(volunteers);
+        return ResponseEntity.ok(userRepository.findAllVolunteers());
     }
 
     @GetMapping("/volunteers/{id}/status")

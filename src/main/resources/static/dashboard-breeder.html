@@ -71,6 +71,18 @@
         window.showSection = function(id) {
             document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
             document.getElementById(`${id}-section`).style.display = 'block';
+
+            // Toggle active button style
+            document.querySelectorAll('.dash-nav button').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(`'${id}'`)) {
+                    btn.classList.remove('btn-outline');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline');
+                }
+            });
+
             if (id === 'my-pets') loadMyPets();
             if (id === 'my-apps') loadMyApps();
             if (id === 'my-vet-apps') loadMyVetApps();
@@ -102,7 +114,7 @@
                     species: document.getElementById('pet-species').value,
                     age: document.getElementById('pet-age').value,
                     imageUrl: document.getElementById('pet-image').value || 'img/pet.png',
-                    availabilityStatus: 'BREEDER_ENTRY'
+                    availabilityStatus: 'REGISTERED'
                 })
             });
             alert('Entry registered.');

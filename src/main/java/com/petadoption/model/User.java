@@ -6,13 +6,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"email", "userType"})
+})
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
     private String name;
+    @Column(nullable = false)
     private String email;
     private String phone;
     private String userType;

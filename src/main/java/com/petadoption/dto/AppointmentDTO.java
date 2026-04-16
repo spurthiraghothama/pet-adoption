@@ -8,6 +8,7 @@ public class AppointmentDTO {
     private Long userId;
     private LocalDate date;
     private LocalTime time;
+    private String appointmentType;
 
     public Long getPetId() { return petId; }
     public void setPetId(Long petId) { this.petId = petId; }
@@ -17,4 +18,6 @@ public class AppointmentDTO {
     public void setDate(LocalDate date) { this.date = date; }
     public LocalTime getTime() { return time; }
     public void setTime(LocalTime time) { this.time = time; }
+    public String getAppointmentType() { return appointmentType; }
+    public void setAppointmentType(String appointmentType) { this.appointmentType = appointmentType; }
 }
