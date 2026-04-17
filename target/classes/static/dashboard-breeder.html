@@ -20,6 +20,7 @@
         <nav class="dash-nav">
             <button class="btn btn-primary" onclick="showSection('my-pets')">Contribution Log</button>
             <button class="btn btn-outline" onclick="showSection('my-apps')">Visit Records</button>
+            <button class="btn btn-outline" onclick="showSection('my-vet-apps')">Vet Appointments</button>
         </nav>
 
         <section id="my-pets-section" class="dash-section">
@@ -33,6 +34,11 @@
         <section id="my-apps-section" class="dash-section" style="display: none;">
             <h2 style="margin-bottom: 2rem; font-size: 2rem;">Coordination Log</h2>
             <div id="breeder-app-list"></div>
+        </section>
+
+        <section id="my-vet-apps-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Vet Appointments</h2>
+            <div id="breeder-vet-app-list"></div>
         </section>
     </div>
 
@@ -65,8 +71,21 @@
         window.showSection = function(id) {
             document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
             document.getElementById(`${id}-section`).style.display = 'block';
+
+            // Toggle active button style
+            document.querySelectorAll('.dash-nav button').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(`'${id}'`)) {
+                    btn.classList.remove('btn-outline');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline');
+                }
+            });
+
             if (id === 'my-pets') loadMyPets();
             if (id === 'my-apps') loadMyApps();
+            if (id === 'my-vet-apps') loadMyVetApps();
         }
 
         async function loadMyPets() {
@@ -95,7 +114,7 @@
                     species: document.getElementById('pet-species').value,
                     age: document.getElementById('pet-age').value,
                     imageUrl: document.getElementById('pet-image').value || 'img/pet.png',
-                    availabilityStatus: 'BREEDER_ENTRY'
+                    availabilityStatus: 'REGISTERED'
                 })
             });
             alert('Entry registered.');
@@ -117,7 +136,78 @@
             `).join('') : '<p>No visiting records yet.</p>';
         }
 
+        async function loadMyVetApps() {
+            try {
+                const res = await fetch('/vetappointments/all');
+                const apps = await res.json();
+
+                const mine = apps.filter(a => a.user && a.user.userId === u.userId);
+
+                const list = document.getElementById('breeder-vet-app-list');
+
+                list.innerHTML = mine.length ? mine.map(a => {
+
+                    const statusColor = {
+                        BOOKED: '#ffd166',
+                        CONFIRMED: '#06d6a0',
+                        COMPLETED: '#118ab2',
+                        CANCELLED: '#ef476f',
+                        REJECTED: '#999'
+                    }[a.status] || 'var(--primary)';
+
+                    return `
+                        <div class="glass-panel" style="margin-bottom:1rem">
+
+                            <span class="status-tag" style="background:${statusColor}; color:black">
+                                ${a.status}
+                            </span>
+
+                            <h3 style="margin-top:0.5rem">
+                                Vet Visit for ${a.pet ? a.pet.name : 'Unknown Pet'}
+                            </h3>
+
+                            <p style="color:var(--text-muted)">
+                                📅 ${a.date} | ⏰ ${a.time}
+                            </p>
+
+                            <p style="color:var(--text-muted)">
+                                Type: ${a.appointmentType}
+                            </p>
+
+                            <div style="margin-top: 1rem; display:flex; gap:0.5rem;">
+
+                                ${a.status !== 'CANCELLED' && a.status !== 'COMPLETED' ? `
+                                    <button class="btn btn-outline" onclick="cancelVetApp(${a.appointmentId})">
+                                        Cancel
+                                    </button>
+                                ` : ''}
+
+                            </div>
+
+                        </div>
+                    `;
+                }).join('') : '<p>No vet appointments yet.</p>';
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('breeder-vet-app-list').innerHTML =
+                    '<p>Error loading vet appointments.</p>';
+            }
+        }
+
+        async function cancelVetApp(id) {
+            if (!confirm('Cancel this appointment?')) return;
+
+            await fetch(`/vetappointments/${id}`, {
+                method: 'DELETE'
+            });
+
+            loadMyVetApps();
+        }
+
         showSection('my-pets');
+
+
     </script>
 </body>
 </html>

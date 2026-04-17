@@ -23,24 +23,57 @@ public class AuthController {
         String password = loginDTO.getPassword() != null ? loginDTO.getPassword().trim() : "";
         String role = loginDTO.getRole() != null ? loginDTO.getRole().trim().toUpperCase() : "";
 
-        System.out.println("Login attempt: Email=" + email + ", Role=" + role);
+        System.out.println("\n--- Login Attempt ---");
+        System.out.println("Input Email: [" + email + "]");
+        System.out.println("Input Role: [" + role + "]");
 
-        Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equalsIgnoreCase(email) && u.getPassword().equals(password))
-                .filter(u -> {
-                    String storedRole = u.getUserType().toUpperCase();
-                    if (role.contains("STAFF")) return storedRole.contains("STAFF");
-                    if (role.contains("VET")) return storedRole.contains("VET");
-                    return storedRole.equals(role);
-                })
-                .findFirst();
+        // Find user by BOTH email and the role they are trying to log into
+        Optional<User> userOpt = userRepository.findByEmailAndUserType(email, role);
 
-        if (user.isPresent()) {
-            System.out.println("Login success for: " + email);
-            return ResponseEntity.ok(user.get());
-        } else {
-            System.out.println("Login failed for: " + email);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials or role mismatch.");
+        // Special handling for legacy role aliases (STAFF vs SHELTER_STAFF)
+        if (userOpt.isEmpty()) {
+            if (role.contains("STAFF")) {
+                userOpt = userRepository.findByEmailAndUserType(email, "SHELTER_STAFF");
+            } else if (role.equals("SHELTER_STAFF")) {
+                userOpt = userRepository.findByEmailAndUserType(email, "STAFF");
+            }
         }
+
+        if (userOpt.isEmpty()) {
+            System.out.println("Result: User NOT found in database for this role.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No account found for " + email + " as " + role);
+        }
+
+        User user = userOpt.get();
+        System.out.println("User found: " + user.getName());
+        System.out.println("Stored Password: [" + user.getPassword() + "]");
+        System.out.println("Stored UserType: [" + user.getUserType() + "]");
+
+        // Check password
+        if (!user.getPassword().equals(password)) {
+            System.out.println("Result: Password mismatch.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password.");
+        }
+
+        // Check role
+        String storedRole = user.getUserType().toUpperCase();
+        boolean roleMatch = false;
+        
+        if (role.contains("STAFF")) {
+            roleMatch = storedRole.contains("STAFF");
+        } else if (role.contains("VET")) {
+            roleMatch = storedRole.contains("VET");
+        } else {
+            roleMatch = storedRole.equals(role);
+        }
+
+        if (!roleMatch) {
+            System.out.println("Result: Role mismatch. Expected " + role + " but found " + storedRole);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Role mismatch. You are registered as " + storedRole + " but tried logging in as " + role);
+        }
+
+        System.out.println("Result: SUCCESS");
+        return ResponseEntity.ok(user);
     }
 }

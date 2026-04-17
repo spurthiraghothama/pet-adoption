@@ -34,6 +34,7 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .date(appointmentDTO.getDate())
                 .time(appointmentDTO.getTime())
                 .status("PENDING")
+                .appointmentType(appointmentDTO.getAppointmentType())
                 .pet(pet)
                 .user(user)
                 .build();

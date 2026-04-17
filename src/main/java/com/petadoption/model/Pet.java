@@ -1,8 +1,6 @@
 package com.petadoption.model;
 
 import jakarta.persistence.*;
-//import com.petadoption.model.Status;
-
 
 @Entity
 public class Pet {

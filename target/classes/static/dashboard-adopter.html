@@ -44,6 +44,63 @@
                 <h2 style="font-size: 2rem;">Support</h2>
                 <button class="btn btn-primary" onclick="openModal('query-modal')">Ask a Question</button>
             </div>
+            
+            <div style="margin-bottom: 3rem;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-size: 1.2rem;">Frequently Asked Questions</h3>
+                <div id="faq-container">
+                    <div class="faq-item glass-panel" onclick="toggleFAQ(this)" style="cursor: pointer; margin-bottom: 1rem; padding: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-weight: 600; margin: 0;">How do I start the adoption process?</p>
+                            <span class="faq-icon" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div class="faq-answer" style="display: none; margin-top: 1rem; color: var(--text-muted); line-height: 1.5;">
+                            Browse our "Furry Friends" tab, click "Adopt" to schedule a visit, and once your visit is completed and approved by staff, you'll be able to finalize the adoption directly from your dashboard.
+                        </div>
+                    </div>
+
+                    <div class="faq-item glass-panel" onclick="toggleFAQ(this)" style="cursor: pointer; margin-bottom: 1rem; padding: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-weight: 600; margin: 0;">What should I bring to my scheduled visit?</p>
+                            <span class="faq-icon" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div class="faq-answer" style="display: none; margin-top: 1rem; color: var(--text-muted); line-height: 1.5;">
+                            Please bring a valid photo ID and proof of residence. This helps us verify your information and ensures a safe environment for our animals.
+                        </div>
+                    </div>
+
+                    <div class="faq-item glass-panel" onclick="toggleFAQ(this)" style="cursor: pointer; margin-bottom: 1rem; padding: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-weight: 600; margin: 0;">Are the pets vaccinated?</p>
+                            <span class="faq-icon" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div class="faq-answer" style="display: none; margin-top: 1rem; color: var(--text-muted); line-height: 1.5;">
+                            Yes! We ensure all pets listed as "Available" have up-to-date vaccinations. You can check the specific vaccination status on each pet's card in the browsing section.
+                        </div>
+                    </div>
+
+                    <div class="faq-item glass-panel" onclick="toggleFAQ(this)" style="cursor: pointer; margin-bottom: 1rem; padding: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-weight: 600; margin: 0;">Can I cancel or reschedule an appointment?</p>
+                            <span class="faq-icon" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div class="faq-answer" style="display: none; margin-top: 1rem; color: var(--text-muted); line-height: 1.5;">
+                            You can cancel any "Pending" visit directly from your "My Appointments" tab. For rescheduling, please cancel your current request and book a new time slot that works for you.
+                        </div>
+                    </div>
+
+                    <div class="faq-item glass-panel" onclick="toggleFAQ(this)" style="cursor: pointer; margin-bottom: 1rem; padding: 1.2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <p style="font-weight: 600; margin: 0;">How long does the approval process take?</p>
+                            <span class="faq-icon" style="transition: transform 0.3s;">▼</span>
+                        </div>
+                        <div class="faq-answer" style="display: none; margin-top: 1rem; color: var(--text-muted); line-height: 1.5;">
+                            Our staff typically reviews visit requests within 24-48 hours. You will see the status update from "Pending" to "Approved" in your appointments log as soon as it's processed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary); font-size: 1.2rem;">Your Recent Inquiries</h3>
             <div id="query-list"></div>
         </section>
     </div>
@@ -88,6 +145,20 @@
         function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function toggleFAQ(el) {
+            const answer = el.querySelector('.faq-answer');
+            const icon = el.querySelector('.faq-icon');
+            if (answer.style.display === 'none') {
+                answer.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+                el.style.borderColor = 'var(--primary)';
+            } else {
+                answer.style.display = 'none';
+                icon.style.transform = 'rotate(0deg)';
+                el.style.borderColor = 'transparent';
+            }
+        }
     </script>
 </body>
 </html>
