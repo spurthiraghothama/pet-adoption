@@ -27,6 +27,8 @@ public class PetServiceImpl implements PetService {
                 .availabilityStatus(petDTO.getAvailabilityStatus() != null ? petDTO.getAvailabilityStatus() : Status.REGISTERED)
                 .imageUrl(petDTO.getImageUrl() != null ? petDTO.getImageUrl() : "img/pet.png")
                 .healthStatus(petDTO.getHealthStatus() != null ? petDTO.getHealthStatus() : "Healthy")
+                .registeredById(petDTO.getRegisteredById())
+                .registeredByType(petDTO.getRegisteredByType())
                 .build();
         
         Pet savedPet = petRepository.save(pet);
@@ -51,4 +53,33 @@ public class PetServiceImpl implements PetService {
         pet.setVaccinationStatus(status);
         petRepository.save(pet);
     }
+
+    @Override
+    public Pet approvePet(Long petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pet not found: " + petId));
+        pet.setAvailabilityStatus(Status.AVAILABLE);
+        return petRepository.save(pet);
+    }
+
+    @Override
+    public Pet rejectPet(Long petId) {
+        Pet pet = petRepository.findById(petId)
+                .orElseThrow(() -> new ResourceNotFoundException("Pet not found: " + petId));
+        pet.setAvailabilityStatus(Status.REJECTED);
+        return petRepository.save(pet);
+    }
+
+    @Override
+    public List<Pet> getPetsByRegistrant(Long userId, String userType) {
+        return petRepository.findByRegisteredByIdAndRegisteredByType(userId, userType);
+    }
+
+    @Override
+    public List<Pet> getPendingReviewPets() {
+        return petRepository.findByAvailabilityStatusIn(
+            List.of(Status.REGISTERED, Status.UNDER_REVIEW)
+        );
+    }
+
 }

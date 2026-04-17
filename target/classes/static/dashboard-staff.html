@@ -28,6 +28,8 @@
             <button class="btn btn-outline" onclick="showSection('queries')">User Inquiries</button>
             <button class="btn btn-outline" onclick="showSection('tasks')">Task Oversight</button>
             <button class="btn btn-outline" onclick="showSection('volunteers')">Volunteer Status</button>
+            <button class="btn btn-outline" onclick="showSection('pending-approvals')">Pending Approvals</button>
+            <button class="btn btn-outline" onclick="showSection('adopted-pets')">Adopted</button>
         </nav>
 
         <section id="manage-pets-section" class="dash-section">
@@ -70,6 +72,16 @@
         <section id="volunteers-section" class="dash-section" style="display: none;">
             <h2 style="margin-bottom: 2rem; font-size: 2rem;">Volunteer Availability</h2>
             <div id="volunteer-status-list"></div>
+        </section>
+
+        <section id="pending-approvals-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Pending Approvals</h2>
+            <div id="pending-approvals-list"></div>
+        </section>
+
+        <section id="adopted-pets-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">Adopted Pets</h2>
+            <div id="adopted-pet-grid" class="pet-grid"></div>
         </section>
 
     </div>

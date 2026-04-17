@@ -10,6 +10,8 @@ public class PetDTO {
     private Status availabilityStatus;
     private String imageUrl;
     private String healthStatus;
+    private Long registeredById;
+    private String registeredByType;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -25,4 +27,8 @@ public class PetDTO {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getHealthStatus() { return healthStatus; }
     public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
+    public Long getRegisteredById() { return registeredById; }
+    public void setRegisteredById(Long registeredById) { this.registeredById = registeredById; }
+    public String getRegisteredByType() { return registeredByType; }
+    public void setRegisteredByType(String registeredByType) { this.registeredByType = registeredByType; }
 }

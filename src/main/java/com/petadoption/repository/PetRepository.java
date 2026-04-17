@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long> {
     List<Pet> findByAvailabilityStatus(Status status);
+    List<Pet> findByAvailabilityStatusIn(List<Status> statuses);
+    List<Pet> findByRegisteredById(Long registeredById);
+    List<Pet> findByRegisteredByIdAndRegisteredByType(Long registeredById, String registeredByType);
 }

@@ -36,4 +36,27 @@ public class PetController {
         petService.updateVaccinationStatus(id, status);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/pending-review")
+    public ResponseEntity<List<Pet>> getPendingReview() {
+        return ResponseEntity.ok(petService.getPendingReviewPets());
+    }
+
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<Pet> approvePet(@PathVariable Long id) {
+        return ResponseEntity.ok(petService.approvePet(id));
+    }
+
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<Pet> rejectPet(@PathVariable Long id) {
+        return ResponseEntity.ok(petService.rejectPet(id));
+    }
+
+    @GetMapping("/my-registrations")
+    public ResponseEntity<List<Pet>> getMyRegistrations(
+            @RequestParam Long userId,
+            @RequestParam String userType) {
+        return ResponseEntity.ok(petService.getPetsByRegistrant(userId, userType));
+    }
+
 }
