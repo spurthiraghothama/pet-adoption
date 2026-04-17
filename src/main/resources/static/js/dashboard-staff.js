@@ -3,6 +3,18 @@ const staffUser = JSON.parse(localStorage.getItem('user'));
 window.showSection = function(id) {
     document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
     document.getElementById(`${id}-section`).style.display = 'block';
+
+    // Toggle active button style
+    document.querySelectorAll('.dash-nav button').forEach(btn => {
+        if (btn.getAttribute('onclick').includes(`'${id}'`)) {
+            btn.classList.remove('btn-outline');
+            btn.classList.add('btn-primary');
+        } else {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-outline');
+        }
+    });
+
     if (id === 'manage-pets') loadStaffPets();
     if (id === 'manage-apps') loadStaffApps();
     if (id === 'queries') loadStaffQueries();
@@ -83,58 +95,87 @@ document.getElementById('add-pet-form').addEventListener('submit', async (e) => 
 
 
 async function loadStaffApps() {
-    const list = document.getElementById('staff-app-list');
-    const response = await fetch('/appointments/all');
-    const apps = await response.json();
+    const vetList = document.getElementById('staff-vet-list');
+    const visitorList = document.getElementById('staff-visitor-list');
+    
+    // Safety check in case we switched sections too fast
+    if (!vetList || !visitorList) return;
 
-    list.innerHTML = apps.map(a => `
-        <div class="glass-panel animate-in"
-             style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+    try {
+        const response = await fetch('/appointments/all');
+        const apps = await response.json();
 
-            <div>
-                <span class="status-tag"
-                      style="background:${a.appointmentType === 'VET_CHECK' ? '#818cf8' : '#dfa164'}; color:white">
-                    ${a.appointmentType}
-                </span>
+        const vetApps = apps.filter(a => a.appointmentType && a.appointmentType.toUpperCase() === 'VET_CHECK');
+        const visitorApps = apps.filter(a => !a.appointmentType || a.appointmentType.toUpperCase() !== 'VET_CHECK');
 
-                <h3 style="margin-top:0.5rem">
-                    ${a.pet ? a.pet.name : 'Unknown Pet'} with ${a.user ? a.user.name : 'Unknown User'}
-                </h3>
+        function renderApp(a) {
+            return `
+                <div class="glass-panel animate-in"
+                     style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
 
-                <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
-                <p>Status: <strong>${a.status}</strong></p>
+                    <div>
+                        <span class="status-tag"
+                              style="background:${(a.appointmentType || 'VISIT').toUpperCase() === 'VET_CHECK' ? '#818cf8' : '#dfa164'}; color:white">
+                            ${a.appointmentType || 'VISIT'}
+                        </span>
 
-                ${a.status === 'APPROVED' ? `
-                    <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
-                        <button class="btn btn-primary"
-                                onclick="markVisit(${a.appointmentId}, 'complete')">
-                            Complete
-                        </button>
+                        <h3 style="margin-top:0.5rem">
+                            ${a.pet ? a.pet.name : 'Unknown Pet'} with ${a.user ? a.user.name : 'Unknown User'}
+                        </h3>
 
-                        <button class="btn btn-outline"
-                                onclick="markVisit(${a.appointmentId}, 'expire')">
-                            Expire
-                        </button>
+                        <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
+                        <p>Status: <strong>${a.status}</strong></p>
+
+                        ${a.status === 'APPROVED' ? `
+                            <div style="display:flex; gap:0.5rem; margin-top:0.5rem">
+                                <button class="btn btn-primary"
+                                        onclick="markVisit(${a.appointmentId}, 'complete')">
+                                    Complete
+                                </button>
+
+                                <button class="btn btn-outline"
+                                        onclick="markVisit(${a.appointmentId}, 'expire')">
+                                    Expire
+                                </button>
+                            </div>
+                        ` : ''}
                     </div>
-                ` : ''}
-            </div>
 
-            ${a.status === 'PENDING' ? `
-                <div style="display:flex; gap:0.5rem">
-                    <button class="btn btn-primary"
-                            onclick="updateAppStatus(${a.appointmentId}, 'APPROVED')">
-                        Approve
-                    </button>
+                    ${a.status === 'PENDING' ? `
+                        <div style="display:flex; gap:0.5rem">
+                            <button class="btn btn-primary"
+                                    onclick="updateAppStatus(${a.appointmentId}, 'APPROVED')">
+                                Approve
+                            </button>
 
-                    <button class="btn btn-outline"
-                            onclick="updateAppStatus(${a.appointmentId}, 'REJECTED')">
-                        Reject
-                    </button>
+                            <button class="btn btn-outline"
+                                    onclick="updateAppStatus(${a.appointmentId}, 'REJECTED')">
+                                Reject
+                            </button>
+                        </div>
+                    ` : ''}
                 </div>
-            ` : ''}
-        </div>
-    `).join('');
+            `;
+        }
+
+        vetList.innerHTML = vetApps.length ? vetApps.map(renderApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No pending vet evaluations.</p>';
+        visitorList.innerHTML = visitorApps.length ? visitorApps.map(renderApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No visiting appointments scheduled.</p>';
+    } catch (err) {
+        console.error("Failed to load appointments:", err);
+    }
 }
+
+window.toggleCategory = function(listId, chevronId) {
+    const list = document.getElementById(listId);
+    const chevron = document.getElementById(chevronId);
+    if (list.style.display === 'none') {
+        list.style.display = 'block';
+        chevron.style.transform = 'rotate(0deg)';
+    } else {
+        list.style.display = 'none';
+        chevron.style.transform = 'rotate(-90deg)';
+    }
+};
 
 
 async function updateAppStatus(id, status) {

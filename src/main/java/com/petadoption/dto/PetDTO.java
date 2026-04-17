@@ -8,6 +8,8 @@ public class PetDTO {
     private int age;
     private boolean vaccinationStatus;
     private Status availabilityStatus;
+    private String imageUrl;
+    private String healthStatus;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -19,4 +21,8 @@ public class PetDTO {
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
     public Status getAvailabilityStatus() { return availabilityStatus; }
     public void setAvailabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getHealthStatus() { return healthStatus; }
+    public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
 }

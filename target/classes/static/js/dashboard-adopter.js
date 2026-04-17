@@ -5,6 +5,18 @@ window.showSection = function(id) {
     const target = document.getElementById(`${id}-section`);
     if (target) {
         target.style.display = 'block';
+
+        // Toggle active button style
+        document.querySelectorAll('.dash-nav button').forEach(btn => {
+            if (btn.getAttribute('onclick').includes(`'${id}'`)) {
+                btn.classList.remove('btn-outline');
+                btn.classList.add('btn-primary');
+            } else {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+            }
+        });
+
         if (id === 'pets') loadPets();
         if (id === 'appointments') loadMyAppointments();
         if (id === 'queries') loadQueries();

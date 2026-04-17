@@ -24,7 +24,9 @@ public class PetServiceImpl implements PetService {
                 .species(petDTO.getSpecies())
                 .age(petDTO.getAge())
                 .vaccinationStatus(petDTO.isVaccinationStatus())
-                .availabilityStatus(Status.REGISTERED)
+                .availabilityStatus(petDTO.getAvailabilityStatus() != null ? petDTO.getAvailabilityStatus() : Status.REGISTERED)
+                .imageUrl(petDTO.getImageUrl() != null ? petDTO.getImageUrl() : "img/pet.png")
+                .healthStatus(petDTO.getHealthStatus() != null ? petDTO.getHealthStatus() : "Healthy")
                 .build();
         
         Pet savedPet = petRepository.save(pet);

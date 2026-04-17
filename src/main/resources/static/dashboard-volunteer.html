@@ -119,7 +119,7 @@
 
         // Load availability status on page load
         async function loadAvailabilityStatus() {
-            const res = await fetch(`/volunteers/${u.userId}/status`);
+            const res = await fetch(`/users/volunteers/${u.userId}/status`);
             const volunteer = await res.json();
             const toggle = document.getElementById('availability-toggle');
             toggle.checked = volunteer.availabilityStatus !== false;
@@ -129,9 +129,15 @@
             const toggle = document.getElementById('availability-toggle');
             const status = toggle.checked;
             
-            await fetch(`/volunteers/${u.userId}/availability?status=${status}`, {
+            const res = await fetch(`/users/volunteers/${u.userId}/availability?status=${status}`, {
                 method: 'PATCH'
             });
+            
+            if (!res.ok) {
+                alert('Failed to update availability. Please try again.');
+                toggle.checked = !status; // Revert UI
+                return;
+            }
             
             // Reload open tasks if we're on that section
             const openTasksSection = document.getElementById('open-tasks-section');
@@ -145,6 +151,17 @@
         window.showSection = function(id) {
             document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
             document.getElementById(`${id}-section`).style.display = 'block';
+
+            // Toggle active button style
+            document.querySelectorAll('.dash-nav button').forEach(btn => {
+                if (btn.getAttribute('onclick').includes(`'${id}'`)) {
+                    btn.classList.remove('btn-outline');
+                    btn.classList.add('btn-primary');
+                } else {
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-outline');
+                }
+            });
 
             if (id === 'open-tasks') loadOpenTasks();
             if (id === 'tasks') loadMyTasks();
