@@ -6,8 +6,7 @@ import com.petadoption.repository.PetRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.petadoption.model.Status;
-import com.petadoption.model.TaskStatus;
+
 
 @Configuration
 public class DataSeeder {

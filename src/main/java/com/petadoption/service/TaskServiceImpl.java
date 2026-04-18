@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import com.petadoption.model.User;
-import com.petadoption.dto.TaskDTO;
 
 @Service
 public class TaskServiceImpl implements TaskService {
