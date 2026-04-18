@@ -94,7 +94,10 @@
                 <div class="form-group"><label>Name</label><input type="text" id="pet-name" required></div>
                 <div class="form-group"><label>Species</label><input type="text" id="pet-species" required
                         placeholder="Dog / Cat"></div>
-                <div class="form-group"><label>Age</label><input type="number" id="pet-age" required></div>
+                <div style="display:flex; gap:1rem;">
+                    <div class="form-group" style="flex:1;"><label>Age Years</label><input type="number" id="pet-age" min="0" required></div>
+                    <div class="form-group" style="flex:1;"><label>Age Months</label><input type="number" id="pet-age-months" min="0" max="11" value="0" required></div>
+                </div>
                 <div class="form-group"><label>Health Status</label><input type="text" id="pet-health" value="Healthy">
                 </div>
                 <div class="form-group"><label>Image URL</label><input type="text" id="pet-img"
@@ -118,7 +121,22 @@
             <form id="vet-check-form">
                 <input type="hidden" id="vet-pet-id">
                 <div class="form-group"><label>Requested Date</label><input type="date" id="vet-date" required></div>
-                <div class="form-group"><label>Requested Time</label><input type="time" id="vet-time" required></div>
+                <div class="form-group">
+                    <label>Requested Time Slot</label>
+                    <select id="vet-time" required>
+                        <option value="">Select a slot</option>
+                        <option value="10:00">10:00 AM - 11:00 AM</option>
+                        <option value="11:00">11:00 AM - 12:00 PM</option>
+                        <option value="12:00">12:00 PM - 1:00 PM</option>
+                        <option value="13:00">1:00 PM - 2:00 PM</option>
+                        <option value="15:00">3:00 PM - 4:00 PM</option>
+                        <option value="16:00">4:00 PM - 5:00 PM</option>
+                        <option value="17:00">5:00 PM - 6:00 PM</option>
+                        <option value="18:00">6:00 PM - 7:00 PM</option>
+                        <option value="19:00">7:00 PM - 8:00 PM</option>
+                    </select>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">Available Monday to Sunday. Break: 2:00 PM - 3:00 PM.</p>
                 <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Create Checkup</button>
                     <button type="button" class="btn btn-outline" style="flex: 1;"

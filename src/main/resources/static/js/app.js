@@ -1,6 +1,15 @@
 const apiBase = ''; // Current host
 let currentUser = null;
 
+function formatAge(pet) {
+    const years = Number(pet.age || 0);
+    const months = Number(pet.ageMonths || 0);
+    const parts = [];
+    if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+    if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+    return parts.length ? parts.join(' ') : '0 months';
+}
+
 // Modal Logic
 function openModal(id) {
     document.getElementById(id).style.display = 'flex';
@@ -29,7 +38,7 @@ async function loadPets() {
                     <span class="pet-tag">${pet.species}</span>
                     <h3>${pet.name}</h3>
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                        ${pet.age} years old • ${pet.vaccinationStatus ? 'Vaccinated' : 'Not Vaccinated'}
+                        ${formatAge(pet)} old • ${pet.vaccinationStatus ? 'Vaccinated' : 'Not Vaccinated'}
                     </p>
                     <button class="btn btn-primary" onclick="initiateBooking(${pet.petId}, '${pet.name}')" ${!currentUser ? 'disabled title="Please register first"' : ''}>
                         Meet ${pet.name}
@@ -113,7 +122,18 @@ document.getElementById('booking-form').addEventListener('submit', async (e) => 
         if (response.ok) {
             alert('Appointment booked successfully! Our staff will contact you shortly.');
             closeModal('booking-modal');
+            return;
         }
+
+        let message = 'Booking failed.';
+        try {
+            const errorPayload = await response.json();
+            message = errorPayload.error || message;
+        } catch (err) {
+            const errorText = await response.text();
+            if (errorText) message = errorText;
+        }
+        alert(message);
     } catch (error) {
         alert('Booking failed.');
     }

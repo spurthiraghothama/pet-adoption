@@ -167,6 +167,14 @@
     <script>
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function formatAge(pet) {
+            const years = Number(pet.age || 0);
+            const months = Number(pet.ageMonths || 0);
+            const parts = [];
+            if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+            if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+            return parts.length ? parts.join(' ') : '0 months';
+        }
 
         async function loadLandingPets() {
             try {
@@ -179,7 +187,7 @@
                         <div class="pet-info">
                             <span style="color:var(--primary); font-size:0.7rem; font-weight:800; text-transform:uppercase;">${p.species}</span>
                             <h3 style="margin: 0.5rem 0;">${p.name}</h3>
-                            <p style="color:var(--text-muted); font-size:0.85rem;">${p.age} years old • ${p.healthStatus || 'Healthy'}</p>
+                            <p style="color:var(--text-muted); font-size:0.85rem;">${formatAge(p)} old • ${p.healthStatus || 'Healthy'}</p>
                         </div>
                     </div>
                 `).join('');

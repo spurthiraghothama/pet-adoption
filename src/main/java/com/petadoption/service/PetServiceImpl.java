@@ -23,6 +23,7 @@ public class PetServiceImpl implements PetService {
                 .name(petDTO.getName())
                 .species(petDTO.getSpecies())
                 .age(petDTO.getAge())
+                .ageMonths(petDTO.getAgeMonths())
                 .vaccinationStatus(petDTO.isVaccinationStatus())
                 .availabilityStatus(petDTO.getAvailabilityStatus() != null ? petDTO.getAvailabilityStatus() : Status.REGISTERED)
                 .imageUrl(petDTO.getImageUrl() != null ? petDTO.getImageUrl() : "img/pet.png")
