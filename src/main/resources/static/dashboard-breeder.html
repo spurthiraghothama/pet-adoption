@@ -49,7 +49,10 @@
             <form id="add-pet-form">
                 <div class="form-group"><label>Name</label><input type="text" id="pet-name" required></div>
                 <div class="form-group"><label>Specific Breed</label><input type="text" id="pet-species" required placeholder="e.g. Beagle / Maine Coon"></div>
-                <div class="form-group"><label>Age</label><input type="number" id="pet-age" required></div>
+                <div style="display:flex; gap:1rem;">
+                    <div class="form-group" style="flex:1;"><label>Age Years</label><input type="number" id="pet-age" min="0" required></div>
+                    <div class="form-group" style="flex:1;"><label>Age Months</label><input type="number" id="pet-age-months" min="0" max="11" value="0" required></div>
+                </div>
                 <div class="form-group"><label>Photo URL</label><input type="text" id="pet-image" placeholder="Paste image link..."></div>
                 <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Finalize Entry</button>
@@ -59,10 +62,51 @@
         </div>
     </div>
 
+    <div id="vet-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 style="margin-bottom: 1.5rem;">Book Vet Appointment</h2>
+            <form id="book-vet-form">
+                <input type="hidden" id="vet-pet-id">
+                <div class="form-group"><label>Pet</label><input type="text" id="vet-pet-name" readonly></div>
+                <div class="form-group"><label>Date</label><input type="date" id="vet-date" required></div>
+                <div class="form-group">
+                    <label>Time Slot</label>
+                    <select id="vet-time" required>
+                        <option value="">Select a slot</option>
+                        <option value="10:00">10:00 AM - 11:00 AM</option>
+                        <option value="11:00">11:00 AM - 12:00 PM</option>
+                        <option value="12:00">12:00 PM - 1:00 PM</option>
+                        <option value="13:00">1:00 PM - 2:00 PM</option>
+                        <option value="15:00">3:00 PM - 4:00 PM</option>
+                        <option value="16:00">4:00 PM - 5:00 PM</option>
+                        <option value="17:00">5:00 PM - 6:00 PM</option>
+                        <option value="18:00">6:00 PM - 7:00 PM</option>
+                        <option value="19:00">7:00 PM - 8:00 PM</option>
+                    </select>
+                </div>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.5rem;">Available Monday to Sunday. Break: 2:00 PM - 3:00 PM.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Book Appointment</button>
+                    <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeModal('vet-modal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const u = JSON.parse(localStorage.getItem('user'));
         if (!u || u.userType !== 'BREEDER') window.location.href = 'login.html';
         document.getElementById('user-display').innerText = u.name;
+        document.getElementById('vet-date').min = new Date().toISOString().split('T')[0];
+
+        function formatAge(pet) {
+            const years = Number(pet.age || 0);
+            const months = Number(pet.ageMonths || 0);
+            const parts = [];
+            if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+            if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+            return parts.length ? parts.join(' ') : '0 months';
+        }
 
         function logout() { localStorage.removeItem('user'); window.location.href = 'login.html'; }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
@@ -99,13 +143,32 @@
                     <div class="pet-info">
                         <span style="color:var(--primary); font-size:0.7rem; font-weight:800; text-transform:uppercase;">${p.species}</span>
                         <h3 style="margin:0.5rem 0">${p.name}</h3>
-                        <p style="color:var(--text-muted); font-size:0.85rem">Age: ${p.age} years</p>
+                        <p style="color:var(--text-muted); font-size:0.85rem">Age: ${formatAge(p)}</p>
                         <span class="status-tag" style="background:${statusColor[p.availabilityStatus] || '#ccc'}; color:black; font-size:0.75rem; margin-top:0.5rem; display:inline-block;">
                             ${p.availabilityStatus}
                         </span>
+                        <div style="margin-top: 1rem;">
+                            ${p.availabilityStatus === 'REGISTERED' ? `
+                                <button class="btn btn-outline" onclick="openVetModal(${p.petId}, '${encodeURIComponent(p.name)}')">
+                                    Book Vet Appointment
+                                </button>
+                            ` : `
+                                <p style="color:var(--text-muted); font-size:0.85rem; margin:0;">Vet booking is only available while status is REGISTERED.</p>
+                            `}
+                        </div>
                     </div>
                 </div>
             `).join('') : '<p style="color:var(--text-muted)">No pets registered yet.</p>';
+        }
+
+        window.openVetModal = function(petId, encodedName) {
+            document.getElementById('vet-pet-id').value = petId;
+            document.getElementById('vet-pet-name').value = decodeURIComponent(encodedName);
+            document.getElementById('book-vet-form').reset();
+            document.getElementById('vet-pet-id').value = petId;
+            document.getElementById('vet-pet-name').value = decodeURIComponent(encodedName);
+            document.getElementById('vet-date').min = new Date().toISOString().split('T')[0];
+            openModal('vet-modal');
         }
 
         document.getElementById('add-pet-form').addEventListener('submit', async (e) => {
@@ -117,6 +180,7 @@
                     name: document.getElementById('pet-name').value,
                     species: document.getElementById('pet-species').value,
                     age: document.getElementById('pet-age').value,
+                    ageMonths: document.getElementById('pet-age-months').value,
                     imageUrl: document.getElementById('pet-image').value || 'img/pet.png',
                     availabilityStatus: 'REGISTERED',
                     registeredById: u.userId,
@@ -128,16 +192,67 @@
             loadMyPets();
         });
 
+        document.getElementById('book-vet-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const response = await fetch('/vetappointments/book', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    petId: Number(document.getElementById('vet-pet-id').value),
+                    userId: u.userId,
+                    date: document.getElementById('vet-date').value,
+                    time: document.getElementById('vet-time').value
+                })
+            });
+
+            if (!response.ok) {
+                let message = 'Unable to book appointment.';
+                try {
+                    const errorPayload = await response.json();
+                    message = errorPayload.error || message;
+                } catch (err) {
+                    const errorText = await response.text();
+                    if (errorText) message = errorText;
+                }
+                alert(message);
+                return;
+            }
+
+            alert('Vet appointment booked.');
+            closeModal('vet-modal');
+            loadMyApps();
+            loadMyVetApps();
+        });
+
         async function loadMyApps() {
-            const res = await fetch('/appointments/all');
-            const apps = await res.json();
-            const mine = apps.filter(a => a.user && a.user.userId === u.userId);
+            const [visitRes, vetRes] = await Promise.all([
+                fetch('/appointments/all'),
+                fetch('/vetappointments/all')
+            ]);
+            const visits = await visitRes.json();
+            const vetApps = await vetRes.json();
+            const mine = [
+                ...visits
+                    .filter(a => a.user && a.user.userId === u.userId)
+                    .map(a => ({ ...a, logType: a.appointmentType || 'VISIT' })),
+                ...vetApps
+                    .filter(a => a.user && a.user.userId === u.userId)
+                    .map(a => ({ ...a, logType: 'VET_CHECK' }))
+            ].sort((a, b) => {
+                const aKey = `${a.date || ''}T${a.time || ''}`;
+                const bKey = `${b.date || ''}T${b.time || ''}`;
+                return bKey.localeCompare(aKey);
+            });
             const list = document.getElementById('breeder-app-list');
             list.innerHTML = mine.length ? mine.map(a => `
                 <div class="glass-panel" style="margin-bottom:1rem">
-                    <span class="status-tag" style="background:var(--primary); color:black">${a.status}</span>
-                    <h3 style="margin-top:0.5rem">Meeting for ${a.pet ? a.pet.name : 'Unknown Pet'}</h3>
+                    <span class="status-tag" style="background:${a.logType === 'VET_CHECK' ? '#818cf8' : 'var(--primary)'}; color:${a.logType === 'VET_CHECK' ? 'white' : 'black'}">
+                        ${a.logType}
+                    </span>
+                    <h3 style="margin-top:0.5rem">${a.logType === 'VET_CHECK' ? 'Vet Visit' : 'Meeting'} for ${a.pet ? a.pet.name : 'Unknown Pet'}</h3>
                     <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
+                    <p style="color:var(--text-muted)">Status: <strong>${a.status}</strong></p>
                 </div>
             `).join('') : '<p>No visiting records yet.</p>';
         }

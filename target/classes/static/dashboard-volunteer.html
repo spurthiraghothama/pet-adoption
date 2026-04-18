@@ -100,7 +100,10 @@
                         <div class="form-group"><label>Species/Breed</label><input type="text" id="p-species" required placeholder="e.g. Golden Retriever"></div>
                     </div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
-                        <div class="form-group"><label>Age</label><input type="number" id="p-age" required></div>
+                        <div style="display:flex; gap:1rem;">
+                            <div class="form-group" style="flex:1;"><label>Age Years</label><input type="number" id="p-age" min="0" required></div>
+                            <div class="form-group" style="flex:1;"><label>Age Months</label><input type="number" id="p-age-months" min="0" max="11" value="0" required></div>
+                        </div>
                         <div class="form-group"><label>Current Status</label><input type="text" id="p-health" placeholder="Injured / Healthy / Stressed"></div>
                     </div>
                     <div class="form-group">
@@ -279,6 +282,7 @@
                     name: document.getElementById('p-name').value,
                     species: document.getElementById('p-species').value,
                     age: document.getElementById('p-age').value,
+                    ageMonths: document.getElementById('p-age-months').value,
                     healthStatus: document.getElementById('p-health').value,
                     imageUrl: document.getElementById('p-img').value || 'img/pet.png',
                     registeredById: u.userId,
@@ -296,12 +300,20 @@
             const res = await fetch(`/pets/my-registrations?userId=${u.userId}&userType=VOLUNTEER`);
             const pets = await res.json();
             const statusColor = { AVAILABLE: '#55efc4', REJECTED: '#ff7675', REGISTERED: '#f1c40f', UNDER_REVIEW: '#74b9ff' };
+            const formatAge = (pet) => {
+                const years = Number(pet.age || 0);
+                const months = Number(pet.ageMonths || 0);
+                const parts = [];
+                if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+                if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+                return parts.length ? parts.join(' ') : '0 months';
+            };
             list.innerHTML = pets.length ? pets.map(p => `
                 <div class="glass-panel animate-in" style="margin-bottom:1rem; display:flex; gap:1.5rem; align-items:center;">
                     <img src="${p.imageUrl || 'img/pet.png'}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;">
                     <div>
                         <h3>${p.name}</h3>
-                        <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${p.age}</p>
+                        <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${formatAge(p)}</p>
                         <span class="status-tag" style="background:${statusColor[p.availabilityStatus] || '#ccc'}; color:black; margin-top:0.5rem; display:inline-block;">
                             ${p.availabilityStatus}
                         </span>

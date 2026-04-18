@@ -10,6 +10,7 @@ public class Pet {
     private String name;
     private String species;
     private int age;
+    private int ageMonths;
     private boolean vaccinationStatus;
     @Enumerated(EnumType.STRING)
     private Status availabilityStatus;
@@ -20,11 +21,12 @@ public class Pet {
 
     public Pet() {}
 
-    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, Status availabilityStatus, String healthStatus, String imageUrl, Long registeredById, String registeredByType) {
+    public Pet(Long petId, String name, String species, int age, int ageMonths, boolean vaccinationStatus, Status availabilityStatus, String healthStatus, String imageUrl, Long registeredById, String registeredByType) {
         this.petId = petId;
         this.name = name;
         this.species = species;
         this.age = age;
+        this.ageMonths = ageMonths;
         this.vaccinationStatus = vaccinationStatus;
         this.availabilityStatus = availabilityStatus;
         this.healthStatus = healthStatus;
@@ -42,6 +44,7 @@ public class Pet {
         private String name;
         private String species;
         private int age;
+        private int ageMonths;
         private boolean vaccinationStatus;
         private Status availabilityStatus;
         private String healthStatus;
@@ -54,6 +57,7 @@ public class Pet {
         public PetBuilder name(String name) { this.name = name; return this; }
         public PetBuilder species(String species) { this.species = species; return this; }
         public PetBuilder age(int age) { this.age = age; return this; }
+        public PetBuilder ageMonths(int ageMonths) { this.ageMonths = ageMonths; return this; }
         public PetBuilder vaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; return this; }
         public PetBuilder availabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; return this; }
         public PetBuilder healthStatus(String healthStatus) { this.healthStatus = healthStatus; return this; }
@@ -62,7 +66,7 @@ public class Pet {
         public PetBuilder registeredByType(String registeredByType) { this.registeredByType = registeredByType; return this; }
 
         public Pet build() {
-            return new Pet(petId, name, species, age, vaccinationStatus, availabilityStatus, healthStatus, imageUrl, registeredById, registeredByType);
+            return new Pet(petId, name, species, age, ageMonths, vaccinationStatus, availabilityStatus, healthStatus, imageUrl, registeredById, registeredByType);
         }
     }
 
@@ -75,6 +79,8 @@ public class Pet {
     public void setSpecies(String species) { this.species = species; }
     public int getAge() { return age; }
     public void setAge(int age) { this.age = age; }
+    public int getAgeMonths() { return ageMonths; }
+    public void setAgeMonths(int ageMonths) { this.ageMonths = ageMonths; }
     public boolean isVaccinationStatus() { return vaccinationStatus; }
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
     public Status getAvailabilityStatus() { return availabilityStatus; }

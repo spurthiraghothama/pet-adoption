@@ -1,5 +1,14 @@
 const user = JSON.parse(localStorage.getItem('user'));
 
+function formatAge(pet) {
+    const years = Number(pet.age || 0);
+    const months = Number(pet.ageMonths || 0);
+    const parts = [];
+    if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+    if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+    return parts.length ? parts.join(' ') : '0 months';
+}
+
 window.showSection = function(id) {
     document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
     const target = document.getElementById(`${id}-section`);
@@ -46,7 +55,7 @@ async function loadPets() {
                 <div class="pet-info">
                     <span class="pet-tag">${pet.species}</span>
                     <h3>${pet.name}</h3>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Age: ${pet.age} • ${pet.healthStatus || 'Healthy'}</p>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Age: ${formatAge(pet)} • ${pet.healthStatus || 'Healthy'}</p>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.8rem">${pet.vaccinationStatus ? '✅ Vaccinated' : '❌ No Vacc'}</span>
                         <button class="btn btn-primary" onclick="openBooking(${pet.petId}, '${pet.name}')" style="padding:0.5rem 1rem; font-size:0.85rem">Adopt ➜</button>
@@ -301,15 +310,34 @@ document.getElementById('booking-form').addEventListener('submit', async (e) => 
         status: 'PENDING',
         appointmentType: 'VISIT'
     };
-    await fetch('/appointments/book', {
+    const response = await fetch('/appointments/book', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
     });
+
+    if (!response.ok) {
+        let message = 'Unable to book visit appointment.';
+        try {
+            const errorPayload = await response.json();
+            message = errorPayload.error || message;
+        } catch (err) {
+            const errorText = await response.text();
+            if (errorText) message = errorText;
+        }
+        alert(message);
+        return;
+    }
+
     alert('Visit Requested!');
     closeModal('booking-modal');
     loadMyAppointments();
 });
+
+const bookingDateInput = document.getElementById('book-date');
+if (bookingDateInput) {
+    bookingDateInput.min = new Date().toISOString().split('T')[0];
+}
 
 // Initialize
 if (user) {

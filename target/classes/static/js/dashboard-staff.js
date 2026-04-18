@@ -1,5 +1,14 @@
 const staffUser = JSON.parse(localStorage.getItem('user'));
 
+function formatAge(pet) {
+    const years = Number(pet.age || 0);
+    const months = Number(pet.ageMonths || 0);
+    const parts = [];
+    if (years > 0) parts.push(`${years} year${years === 1 ? '' : 's'}`);
+    if (months > 0) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+    return parts.length ? parts.join(' ') : '0 months';
+}
+
 window.showSection = function(id) {
     document.querySelectorAll('.dash-section').forEach(s => s.style.display = 'none');
     document.getElementById(`${id}-section`).style.display = 'block';
@@ -41,7 +50,7 @@ async function loadStaffPets() {
             <div class="pet-info">
                 <span class="pet-tag">${pet.species}</span>
                 <h3>${pet.name}</h3>
-                <p style="color:var(--text-muted); font-size:0.85rem">Age: ${pet.age} | ${pet.healthStatus || 'Healthy'}</p>
+                <p style="color:var(--text-muted); font-size:0.85rem">Age: ${formatAge(pet)} | ${pet.healthStatus || 'Healthy'}</p>
                 <p style="font-size:0.8rem; margin-top:0.5rem">Vacc: ${pet.vaccinationStatus ? '✅' : '❌'}</p>
                 <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem">${pet.registeredByType ? '📋 ' + pet.registeredByType : '🏠 Shelter'}</p>
                 <div style="display:flex; gap:0.5rem; margin-top:1.5rem">
@@ -55,6 +64,9 @@ async function loadStaffPets() {
 
 function openVetCheck(id) {
     document.getElementById('vet-pet-id').value = id;
+    document.getElementById('vet-date').value = '';
+    document.getElementById('vet-time').value = '';
+    document.getElementById('vet-date').min = new Date().toISOString().split('T')[0];
     document.getElementById('vet-check-modal').style.display = 'flex';
 }
 
@@ -68,11 +80,25 @@ document.getElementById('vet-check-form').addEventListener('submit', async (e) =
         status: 'PENDING',
         appointmentType: 'VET_CHECK'
     };
-    await fetch('/appointments/book', {
+    const response = await fetch('/appointments/book', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
     });
+
+    if (!response.ok) {
+        let message = 'Unable to create vet check appointment.';
+        try {
+            const errorPayload = await response.json();
+            message = errorPayload.error || message;
+        } catch (err) {
+            const errorText = await response.text();
+            if (errorText) message = errorText;
+        }
+        alert(message);
+        return;
+    }
+
     alert('Vet Check Appointment Created!');
     document.getElementById('vet-check-modal').style.display = 'none';
     loadStaffApps();
@@ -89,6 +115,7 @@ document.getElementById('add-pet-form').addEventListener('submit', async (e) => 
         name: document.getElementById('pet-name').value,
         species: document.getElementById('pet-species').value,
         age: document.getElementById('pet-age').value,
+        ageMonths: document.getElementById('pet-age-months').value,
         healthStatus: document.getElementById('pet-health').value,
         imageUrl: document.getElementById('pet-img').value || 'img/pet.png',
         vaccinationStatus: document.getElementById('pet-vacc').value === 'true',
@@ -112,13 +139,31 @@ async function loadStaffApps() {
     if (!vetList || !visitorList) return;
 
     try {
-        const response = await fetch('/appointments/all');
-        const apps = await response.json();
+        const [appointmentResponse, vetAppointmentResponse] = await Promise.all([
+            fetch('/appointments/all'),
+            fetch('/vetappointments/all')
+        ]);
+        const apps = await appointmentResponse.json();
+        const vetBookings = await vetAppointmentResponse.json();
 
-        const vetApps = apps.filter(a => a.appointmentType && a.appointmentType.toUpperCase() === 'VET_CHECK');
-        const visitorApps = apps.filter(a => !a.appointmentType || a.appointmentType.toUpperCase() !== 'VET_CHECK');
+        const regularVetApps = apps
+            .filter(a => a.status !== 'COMPLETED')
+            .filter(a => a.appointmentType && a.appointmentType.toUpperCase() === 'VET_CHECK')
+            .map(a => ({ ...a, source: 'APPOINTMENT' }));
+        const breederVetApps = vetBookings
+            .filter(a => a.status !== 'COMPLETED')
+            .map(a => ({ ...a, source: 'VET_APPOINTMENT' }));
+        const vetApps = [...regularVetApps, ...breederVetApps].sort((a, b) => {
+            const aKey = `${a.date || ''}T${a.time || ''}`;
+            const bKey = `${b.date || ''}T${b.time || ''}`;
+            return aKey.localeCompare(bKey);
+        });
+        const visitorApps = apps.filter(a =>
+            a.status !== 'COMPLETED' &&
+            (!a.appointmentType || a.appointmentType.toUpperCase() !== 'VET_CHECK')
+        );
 
-        function renderApp(a) {
+        function renderVisitorApp(a) {
             return `
                 <div class="glass-panel animate-in"
                      style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
@@ -168,8 +213,78 @@ async function loadStaffApps() {
             `;
         }
 
-        vetList.innerHTML = vetApps.length ? vetApps.map(renderApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No pending vet evaluations.</p>';
-        visitorList.innerHTML = visitorApps.length ? visitorApps.map(renderApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No visiting appointments scheduled.</p>';
+        function renderVetApp(a) {
+            const sourceLabel = a.source === 'VET_APPOINTMENT' ? 'BREEDER REQUEST' : 'STAFF CHECK';
+            const statusColors = {
+                BOOKED: '#ffd166',
+                CONFIRMED: '#06d6a0',
+                COMPLETED: '#118ab2',
+                CANCELLED: '#ef476f',
+                REJECTED: '#999',
+                PENDING: '#ffd166',
+                APPROVED: '#06d6a0',
+                EXPIRED: '#999'
+            };
+
+            const approveAction = a.source === 'VET_APPOINTMENT'
+                ? `confirmVetApp(${a.appointmentId})`
+                : `updateAppStatus(${a.appointmentId}, 'APPROVED')`;
+
+            const rejectAction = a.source === 'VET_APPOINTMENT'
+                ? `updateVetAppStatus(${a.appointmentId}, 'REJECTED')`
+                : `updateAppStatus(${a.appointmentId}, 'REJECTED')`;
+
+            const completeAction = a.source === 'VET_APPOINTMENT'
+                ? `completeVetApp(${a.appointmentId})`
+                : `markVisit(${a.appointmentId}, 'complete')`;
+
+            const cancelAction = a.source === 'VET_APPOINTMENT'
+                ? `cancelVetAppFromStaff(${a.appointmentId})`
+                : `markVisit(${a.appointmentId}, 'expire')`;
+
+            const canReview = a.status === 'BOOKED' || a.status === 'PENDING';
+            const canClose = a.status === 'CONFIRMED' || a.status === 'APPROVED';
+
+            return `
+                <div class="glass-panel animate-in"
+                     style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+
+                    <div>
+                        <span class="status-tag" style="background:#818cf8; color:white">VET_CHECK</span>
+                        <span class="status-tag" style="background:#f3f4f6; color:#111; margin-left:0.5rem">${sourceLabel}</span>
+
+                        <h3 style="margin-top:0.5rem">
+                            ${a.pet ? a.pet.name : 'Unknown Pet'} with ${a.user ? a.user.name : 'Unknown User'}
+                        </h3>
+
+                        <p style="color:var(--text-muted)">${a.date} | ${a.time}</p>
+                        <p>Status: <strong style="color:${statusColors[a.status] || 'inherit'}">${a.status}</strong></p>
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:flex-end">
+                        ${canReview ? `
+                            <button class="btn btn-primary" onclick="${approveAction}">
+                                Approve
+                            </button>
+                            <button class="btn btn-outline" onclick="${rejectAction}">
+                                Reject
+                            </button>
+                        ` : ''}
+                        ${canClose ? `
+                            <button class="btn btn-primary" onclick="${completeAction}">
+                                Complete
+                            </button>
+                            <button class="btn btn-outline" onclick="${cancelAction}">
+                                ${a.source === 'VET_APPOINTMENT' ? 'Cancel' : 'Expire'}
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        vetList.innerHTML = vetApps.length ? vetApps.map(renderVetApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No pending vet evaluations.</p>';
+        visitorList.innerHTML = visitorApps.length ? visitorApps.map(renderVisitorApp).join('') : '<p style="color:var(--text-muted); font-style:italic">No visiting appointments scheduled.</p>';
     } catch (err) {
         console.error("Failed to load appointments:", err);
     }
@@ -190,6 +305,27 @@ window.toggleCategory = function(listId, chevronId) {
 
 async function updateAppStatus(id, status) {
     await fetch(`/appointments/${id}/status?status=${status}`, { method: 'PATCH' });
+    loadStaffApps();
+}
+
+async function updateVetAppStatus(id, status) {
+    await fetch(`/vetappointments/${id}/status?status=${status}`, { method: 'PATCH' });
+    loadStaffApps();
+}
+
+async function confirmVetApp(id) {
+    await fetch(`/vetappointments/${id}/confirm`, { method: 'POST' });
+    loadStaffApps();
+}
+
+async function completeVetApp(id) {
+    await fetch(`/vetappointments/${id}/complete`, { method: 'POST' });
+    loadStaffApps();
+    loadStaffPets();
+}
+
+async function cancelVetAppFromStaff(id) {
+    await fetch(`/vetappointments/${id}`, { method: 'DELETE' });
     loadStaffApps();
 }
 
@@ -316,7 +452,7 @@ async function loadPendingApprovals() {
                         ${p.registeredByType || 'EXTERNAL'}
                     </span>
                     <h3 style="margin-top:0.4rem">${p.name}</h3>
-                    <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${p.age} | ${p.healthStatus || 'Healthy'}</p>
+                    <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${formatAge(p)} | ${p.healthStatus || 'Healthy'}</p>
                     <p style="font-size:0.8rem; color:var(--text-muted)">Status: <strong>${p.availabilityStatus}</strong></p>
                 </div>
             </div>
@@ -350,7 +486,7 @@ async function loadAdoptedPets() {
             <div class="pet-info">
                 <span class="pet-tag">${pet.species}</span>
                 <h3>${pet.name}</h3>
-                <p style="color:var(--text-muted); font-size:0.85rem">Age: ${pet.age} | ${pet.healthStatus || 'Healthy'}</p>
+                <p style="color:var(--text-muted); font-size:0.85rem">Age: ${formatAge(pet)} | ${pet.healthStatus || 'Healthy'}</p>
                 <span class="status-tag" style="background:#a29bfe; color:black; margin-top:0.5rem; display:inline-block;">ADOPTED</span>
             </div>
         </div>

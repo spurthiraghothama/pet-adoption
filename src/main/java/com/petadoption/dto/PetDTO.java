@@ -6,6 +6,7 @@ public class PetDTO {
     private String name;
     private String species;
     private int age;
+    private int ageMonths;
     private boolean vaccinationStatus;
     private Status availabilityStatus;
     private String imageUrl;
@@ -19,6 +20,8 @@ public class PetDTO {
     public void setSpecies(String species) { this.species = species; }
     public int getAge() { return age; }
     public void setAge(int age) { this.age = age; }
+    public int getAgeMonths() { return ageMonths; }
+    public void setAgeMonths(int ageMonths) { this.ageMonths = ageMonths; }
     public boolean isVaccinationStatus() { return vaccinationStatus; }
     public void setVaccinationStatus(boolean vaccinationStatus) { this.vaccinationStatus = vaccinationStatus; }
     public Status getAvailabilityStatus() { return availabilityStatus; }
