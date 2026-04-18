@@ -76,6 +76,7 @@
             <button class="btn btn-primary" onclick="showSection('open-tasks')">Open Tasks</button>
             <button class="btn btn-outline" onclick="showSection('tasks')">My Queue</button>
             <button class="btn btn-outline" onclick="showSection('reg-pet')">Register Rescue</button>
+            <button class="btn btn-outline" onclick="showSection('my-registrations')">My Registrations</button>
         </nav>
 
         <!-- 🟢 OPEN TASKS -->
@@ -110,6 +111,12 @@
                 </form>
             </div>
         </section>
+
+        <section id="my-registrations-section" class="dash-section" style="display: none;">
+            <h2 style="margin-bottom: 2rem; font-size: 2rem;">My Registered Pets</h2>
+            <div id="my-registrations-list"></div>
+        </section>
+
     </div>
 
     <script>
@@ -165,6 +172,7 @@
 
             if (id === 'open-tasks') loadOpenTasks();
             if (id === 'tasks') loadMyTasks();
+            if (id === 'my-registrations') loadMyRegistrations();
         };
 
         // 🟢 OPEN TASKS - Only show if available
@@ -273,13 +281,34 @@
                     age: document.getElementById('p-age').value,
                     healthStatus: document.getElementById('p-health').value,
                     imageUrl: document.getElementById('p-img').value || 'img/pet.png',
-                    availabilityStatus: 'UNDER_REVIEW'
+                    registeredById: u.userId,
+                    registeredByType: 'VOLUNTEER',
+                    availabilityStatus: 'UNDER_REVIEW',
                 })
             });
             alert('Rescue entry successful!');
             document.getElementById('rescue-form').reset();
             showSection('tasks');
         });
+
+        async function loadMyRegistrations() {
+            const list = document.getElementById('my-registrations-list');
+            const res = await fetch(`/pets/my-registrations?userId=${u.userId}&userType=VOLUNTEER`);
+            const pets = await res.json();
+            const statusColor = { AVAILABLE: '#55efc4', REJECTED: '#ff7675', REGISTERED: '#f1c40f', UNDER_REVIEW: '#74b9ff' };
+            list.innerHTML = pets.length ? pets.map(p => `
+                <div class="glass-panel animate-in" style="margin-bottom:1rem; display:flex; gap:1.5rem; align-items:center;">
+                    <img src="${p.imageUrl || 'img/pet.png'}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;">
+                    <div>
+                        <h3>${p.name}</h3>
+                        <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${p.age}</p>
+                        <span class="status-tag" style="background:${statusColor[p.availabilityStatus] || '#ccc'}; color:black; margin-top:0.5rem; display:inline-block;">
+                            ${p.availabilityStatus}
+                        </span>
+                    </div>
+                </div>
+            `).join('') : '<p style="color:var(--text-muted)">You have not registered any pets yet.</p>';
+        }
 
         // Initialize
         loadAvailabilityStatus();

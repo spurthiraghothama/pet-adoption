@@ -15,10 +15,12 @@ public class Pet {
     private Status availabilityStatus;
     private String healthStatus;
     private String imageUrl;
+    private Long registeredById;
+    private String registeredByType;
 
     public Pet() {}
 
-    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, Status availabilityStatus, String healthStatus, String imageUrl) {
+    public Pet(Long petId, String name, String species, int age, boolean vaccinationStatus, Status availabilityStatus, String healthStatus, String imageUrl, Long registeredById, String registeredByType) {
         this.petId = petId;
         this.name = name;
         this.species = species;
@@ -27,6 +29,8 @@ public class Pet {
         this.availabilityStatus = availabilityStatus;
         this.healthStatus = healthStatus;
         this.imageUrl = imageUrl;
+        this.registeredById = registeredById;
+        this.registeredByType = registeredByType;
     }
 
     public static PetBuilder builder() {
@@ -42,7 +46,10 @@ public class Pet {
         private Status availabilityStatus;
         private String healthStatus;
         private String imageUrl;
+        private Long registeredById;
+        private String registeredByType;
 
+        
         public PetBuilder petId(Long petId) { this.petId = petId; return this; }
         public PetBuilder name(String name) { this.name = name; return this; }
         public PetBuilder species(String species) { this.species = species; return this; }
@@ -51,9 +58,11 @@ public class Pet {
         public PetBuilder availabilityStatus(Status availabilityStatus) { this.availabilityStatus = availabilityStatus; return this; }
         public PetBuilder healthStatus(String healthStatus) { this.healthStatus = healthStatus; return this; }
         public PetBuilder imageUrl(String imageUrl) { this.imageUrl = imageUrl; return this; }
+        public PetBuilder registeredById(Long registeredById) { this.registeredById = registeredById; return this; }
+        public PetBuilder registeredByType(String registeredByType) { this.registeredByType = registeredByType; return this; }
 
         public Pet build() {
-            return new Pet(petId, name, species, age, vaccinationStatus, availabilityStatus, healthStatus, imageUrl);
+            return new Pet(petId, name, species, age, vaccinationStatus, availabilityStatus, healthStatus, imageUrl, registeredById, registeredByType);
         }
     }
 
@@ -74,4 +83,8 @@ public class Pet {
     public void setHealthStatus(String healthStatus) { this.healthStatus = healthStatus; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public Long getRegisteredById() { return registeredById; }
+    public void setRegisteredById(Long registeredById) { this.registeredById = registeredById; }
+    public String getRegisteredByType() { return registeredByType; }
+    public void setRegisteredByType(String registeredByType) { this.registeredByType = registeredByType; }
 }

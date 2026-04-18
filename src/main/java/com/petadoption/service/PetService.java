@@ -9,4 +9,8 @@ public interface PetService {
     List<Pet> getAvailablePets();
     List<Pet> getAllPets();
     void updateVaccinationStatus(Long petId, boolean status);
+    Pet approvePet(Long petId);
+    Pet rejectPet(Long petId);
+    List<Pet> getPetsByRegistrant(Long userId, String userType);
+    List<Pet> getPendingReviewPets();
 }

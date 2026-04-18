@@ -89,19 +89,23 @@
         }
 
         async function loadMyPets() {
-            const res = await fetch('/pets/all');
+            const res = await fetch(`/pets/my-registrations?userId=${u.userId}&userType=BREEDER`);
             const pets = await res.json();
             const grid = document.getElementById('breeder-pet-grid');
-            grid.innerHTML = pets.map(p => `
+            const statusColor = { AVAILABLE: '#55efc4', REJECTED: '#ff7675', REGISTERED: '#f1c40f', UNDER_REVIEW: '#74b9ff', ADOPTED: '#a29bfe' };
+            grid.innerHTML = pets.length ? pets.map(p => `
                 <div class="pet-card">
                     <img src="${p.imageUrl || 'img/pet.png'}" alt="${p.name}">
                     <div class="pet-info">
                         <span style="color:var(--primary); font-size:0.7rem; font-weight:800; text-transform:uppercase;">${p.species}</span>
                         <h3 style="margin:0.5rem 0">${p.name}</h3>
                         <p style="color:var(--text-muted); font-size:0.85rem">Age: ${p.age} years</p>
+                        <span class="status-tag" style="background:${statusColor[p.availabilityStatus] || '#ccc'}; color:black; font-size:0.75rem; margin-top:0.5rem; display:inline-block;">
+                            ${p.availabilityStatus}
+                        </span>
                     </div>
                 </div>
-            `).join('');
+            `).join('') : '<p style="color:var(--text-muted)">No pets registered yet.</p>';
         }
 
         document.getElementById('add-pet-form').addEventListener('submit', async (e) => {
@@ -114,7 +118,9 @@
                     species: document.getElementById('pet-species').value,
                     age: document.getElementById('pet-age').value,
                     imageUrl: document.getElementById('pet-image').value || 'img/pet.png',
-                    availabilityStatus: 'REGISTERED'
+                    availabilityStatus: 'REGISTERED',
+                    registeredById: u.userId,
+                    registeredByType: 'BREEDER'
                 })
             });
             alert('Entry registered.');

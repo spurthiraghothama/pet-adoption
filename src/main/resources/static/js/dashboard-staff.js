@@ -20,13 +20,22 @@ window.showSection = function(id) {
     if (id === 'queries') loadStaffQueries();
     if (id === 'tasks') loadStaffTasks();
     if (id === 'volunteers') loadVolunteerStatus();
+    if (id === 'pending-approvals') loadPendingApprovals();
+    if (id === 'adopted-pets') loadAdoptedPets();
 };
 
 async function loadStaffPets() {
     const grid = document.getElementById('staff-pet-grid');
     const response = await fetch('/pets/all');
     const pets = await response.json();
-    grid.innerHTML = pets.map(pet => `
+    // Show: staff-added pets (no registeredByType) that are not ADOPTED,
+    // plus breeder/volunteer pets that are AVAILABLE (approved) and not ADOPTED
+    const current = pets.filter(p => {
+        if (p.availabilityStatus === 'ADOPTED') return false;
+        if (!p.registeredByType) return true; // added directly by staff
+        return p.availabilityStatus === 'AVAILABLE'; // breeder/volunteer only if approved
+    });
+    grid.innerHTML = current.map(pet => `
         <div class="pet-card animate-in">
             <img src="${pet.imageUrl || 'img/pet.png'}" alt="${pet.name}">
             <div class="pet-info">
@@ -34,6 +43,7 @@ async function loadStaffPets() {
                 <h3>${pet.name}</h3>
                 <p style="color:var(--text-muted); font-size:0.85rem">Age: ${pet.age} | ${pet.healthStatus || 'Healthy'}</p>
                 <p style="font-size:0.8rem; margin-top:0.5rem">Vacc: ${pet.vaccinationStatus ? '✅' : '❌'}</p>
+                <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem">${pet.registeredByType ? '📋 ' + pet.registeredByType : '🏠 Shelter'}</p>
                 <div style="display:flex; gap:0.5rem; margin-top:1.5rem">
                     <button class="btn btn-primary" style="flex:1; font-size:0.75rem; padding:0.5rem;" onclick="openVetCheck(${pet.petId})">Vet Check</button>
                     <button class="btn btn-outline" style="flex:1; font-size:0.75rem; padding:0.5rem;" onclick="toggleVacc(${pet.petId}, ${!pet.vaccinationStatus})">Update Vacc</button>
@@ -291,6 +301,61 @@ document.getElementById('add-task-form').addEventListener('submit', async (e) =>
     document.getElementById('task-modal').style.display = 'none';
     loadStaffTasks();
 });
+
+
+async function loadPendingApprovals() {
+    const list = document.getElementById('pending-approvals-list');
+    const res = await fetch('/pets/pending-review');
+    const pets = await res.json();
+    list.innerHTML = pets.length ? pets.map(p => `
+        <div class="glass-panel animate-in" style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:1.5rem; align-items:center;">
+                <img src="${p.imageUrl || 'img/pet.png'}" style="width:70px; height:70px; border-radius:12px; object-fit:cover;">
+                <div>
+                    <span class="status-tag" style="background:#f1c40f; color:black; font-size:0.75rem;">
+                        ${p.registeredByType || 'EXTERNAL'}
+                    </span>
+                    <h3 style="margin-top:0.4rem">${p.name}</h3>
+                    <p style="color:var(--text-muted); font-size:0.85rem">${p.species} | Age: ${p.age} | ${p.healthStatus || 'Healthy'}</p>
+                    <p style="font-size:0.8rem; color:var(--text-muted)">Status: <strong>${p.availabilityStatus}</strong></p>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-primary" onclick="approvePet(${p.petId})">✅ Approve</button>
+                <button class="btn btn-outline" onclick="rejectPet(${p.petId})">❌ Reject</button>
+            </div>
+        </div>
+    `).join('') : '<p style="color:var(--text-muted)">No pets pending review.</p>';
+}
+
+async function approvePet(id) {
+    await fetch(`/pets/${id}/approve`, { method: 'PATCH' });
+    loadPendingApprovals();
+}
+
+async function rejectPet(id) {
+    await fetch(`/pets/${id}/reject`, { method: 'PATCH' });
+    loadPendingApprovals();
+}
+
+
+async function loadAdoptedPets() {
+    const grid = document.getElementById('adopted-pet-grid');
+    const response = await fetch('/pets/all');
+    const pets = await response.json();
+    const adopted = pets.filter(p => p.availabilityStatus === 'ADOPTED');
+    grid.innerHTML = adopted.length ? adopted.map(pet => `
+        <div class="pet-card animate-in">
+            <img src="${pet.imageUrl || 'img/pet.png'}" alt="${pet.name}">
+            <div class="pet-info">
+                <span class="pet-tag">${pet.species}</span>
+                <h3>${pet.name}</h3>
+                <p style="color:var(--text-muted); font-size:0.85rem">Age: ${pet.age} | ${pet.healthStatus || 'Healthy'}</p>
+                <span class="status-tag" style="background:#a29bfe; color:black; margin-top:0.5rem; display:inline-block;">ADOPTED</span>
+            </div>
+        </div>
+    `).join('') : '<p style="color:var(--text-muted)">No adopted pets yet.</p>';
+}
 
 // Init
 showSection('manage-pets');
