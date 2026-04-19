@@ -1,76 +1,94 @@
-# Pet Adoption Centre System - Backend
+# Pet Adoption Centre System
 
-This is a complete Spring Boot backend application for a Pet Adoption Centre.
-
-## 🏗 Architecture & Design Patterns
+## Architecture & Design Patterns
 
 ### 1. MVC Architecture
 - **Model**: JPA Entities representing the core business objects.
 - **View**: REST API responses (JSON).
 - **Controller**: REST Controllers handling HTTP requests.
 
-### 2. Creational Design Patterns
-- **Factory Pattern**: Implemented in `UserFactory` to create specialized user types (`Adopter`, `Volunteer`, `ShelterStaff`, `Breeder`).
-- **Singleton Pattern**: Implemented in `PetRegistry` as a thread-safe registry for managing pets centrally.
-- **Builder Pattern**: Implemented in `Pet` and `Appointment` models using Lombok's `@Builder` for clean object creation.
-
 ---
 
-## 🔌 API Endpoints & Sample Data
-
-### 1. User Registration
-`POST /users/register`
-```json
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "phone": "1234567890",
-  "userType": "ADOPTER"
-}
-```
-
-### 2. Add a Pet (Shelter Staff)
-`POST /pets/add`
-```json
-{
-  "name": "Buddy",
-  "species": "Dog",
-  "age": 2,
-  "vaccinationStatus": true,
-  "availabilityStatus": "AVAILABLE"
-}
-```
-
-### 3. View Available Pets (Adopter)
-`GET /pets`
-
-### 4. Book Appointment (Adopter)
-`POST /appointments/book`
-```json
-{
-  "petId": 1,
-  "userId": 1,
-  "date": "2024-05-20",
-  "time": "10:30:00"
-}
-```
-
-### 5. Cancel Appointment
-`DELETE /appointments/cancel/1`
-
-### 6. Ask Query (Adopter)
-`POST /queries/ask`
-```json
-{
-  "userId": 1,
-  "text": "Is Buddy friendly with children?"
-}
-```
-
-### 7. Respond to Query (Shelter Staff)
-`POST /queries/respond?questionId=1&answer=Yes, he is very friendly!`
-
----
+## 🔌 API Endpoints 
+ 
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/login` | Login with email, password, role |
+ 
+### Users
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/users/register` | Register a new user |
+| GET | `/users` | Get all users |
+| GET | `/users/volunteers` | Get all volunteers |
+| PATCH | `/users/volunteers/{id}/availability` | Toggle volunteer availability |
+ 
+### Pets
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/pets` | Get all available pets |
+| GET | `/pets/all` | Get all pets |
+| POST | `/pets/add` | Add a new pet |
+| GET | `/pets/pending-review` | Get pets pending approval |
+| PATCH | `/pets/{id}/approve` | Approve a pet listing |
+| PATCH | `/pets/{id}/reject` | Reject a pet listing |
+| PATCH | `/pets/{id}/vaccination` | Update vaccination status |
+| GET | `/pets/my-registrations` | Get pets registered by a user |
+ 
+### Appointments
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/appointments/book` | Book an appointment |
+| GET | `/appointments/all` | Get all appointments |
+| DELETE | `/appointments/{id}` | Cancel an appointment |
+| PATCH | `/appointments/{id}/status` | Update appointment status |
+| PATCH | `/appointments/{id}/complete` | Mark as completed |
+| PATCH | `/appointments/{id}/expire` | Mark as expired |
+ 
+### Vet Appointments
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/vetappointments/book` | Book a vet appointment (Breeder only) |
+| GET | `/vetappointments/all` | Get all vet appointments |
+| DELETE | `/vetappointments/{id}` | Cancel a vet appointment |
+| POST | `/vetappointments/{id}/confirm` | Confirm appointment |
+| POST | `/vetappointments/{id}/complete` | Complete appointment |
+ 
+### Tasks
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/tasks` | Get all tasks |
+| GET | `/tasks/open` | Get published tasks |
+| POST | `/tasks/create` | Create a task |
+| PATCH | `/tasks/{id}/publish` | Publish a task |
+| PATCH | `/taskId}/assign/{volunteerId}` | Assign to volunteer |
+| PATCH | `/tasks/{taskId}/choose/{volunteerId}` | Volunteer self-selects task |
+| PATCH | `/tasks/{taskId}/start` | Start a task |
+| PATCH | `/tasks/{taskId}/complete` | Mark task complete |
+| PATCH | `/tasks/{taskId}/review` | Staff reviews completed task |
+ 
+### Queries
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/queries/ask` | Submit a query |
+| POST | `/queries/respond` | Respond to a query |
+| GET | `/queries/all` | Get all queries |
+ 
+### Adoptions
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/adoptions/create` | Create an adoption record |
+| GET | `/adoptions/user/{id}` | Get adoptions by user |
+ 
+### Admin
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/admin/data/all` | Get all system data in one response |
+| GET | `/admin/data/users/all` | Get all users |
+| GET | `/admin/data/pets/all` | Get all pets |
+| GET | `/admin/data/appointments/all` | Get all appointments |
+ ---
 
 ## 🛠 Prerequisites
 - Java 17+
