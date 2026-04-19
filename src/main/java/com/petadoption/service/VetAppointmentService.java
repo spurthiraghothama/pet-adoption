@@ -8,4 +8,6 @@ public interface VetAppointmentService {
     void cancelAppointment(Long appointmentId);
     java.util.List<VetAppointment> getAllAppointments();
     VetAppointment updateStatus(Long id, String status);
+    VetAppointment confirmAppointment(Long id);
+    VetAppointment completeAppointment(Long id);
 }

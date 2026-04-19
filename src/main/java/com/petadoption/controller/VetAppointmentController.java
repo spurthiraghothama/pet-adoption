@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.petadoption.dto.VetAppointmentDTO;
 import com.petadoption.model.VetAppointment;
 import com.petadoption.service.VetAppointmentService;
-import com.petadoption.service.VetAppointmentServiceImpl;
+
 
 @RestController
 @RequestMapping("/vetappointments")
@@ -48,14 +48,14 @@ public class VetAppointmentController {
         return ResponseEntity.ok(vetAppointmentService.updateStatus(id, status));
     }
 
-@PostMapping("/{id}/confirm")
-public ResponseEntity<VetAppointment> confirm(@PathVariable Long id) {
-    return ResponseEntity.ok(((VetAppointmentServiceImpl) vetAppointmentService).confirmAppointment(id));
-}
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<VetAppointment> confirm(@PathVariable Long id) {
+        return ResponseEntity.ok(vetAppointmentService.confirmAppointment(id));
+    }
 
-@PostMapping("/{id}/complete")
-public ResponseEntity<VetAppointment> complete(@PathVariable Long id) {
-    return ResponseEntity.ok(((VetAppointmentServiceImpl) vetAppointmentService).completeAppointment(id));
-}
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<VetAppointment> complete(@PathVariable Long id) {
+        return ResponseEntity.ok(vetAppointmentService.completeAppointment(id));
+    }
 
 }

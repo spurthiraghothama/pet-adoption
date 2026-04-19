@@ -2,7 +2,6 @@ package com.petadoption.controller;
 
 import com.petadoption.dto.TaskDTO;
 import com.petadoption.model.Task;
-import com.petadoption.repository.TaskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
