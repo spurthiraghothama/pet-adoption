@@ -31,7 +31,7 @@ public class AdoptionServiceImpl implements AdoptionService {
         User user = userRepository.findById(dto.getAdopterId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 🔥 prevent double adoption
+        // prevent double adoption
         if (pet.getAvailabilityStatus() == Status.ADOPTED) {
             throw new RuntimeException("Pet already adopted");
         }
